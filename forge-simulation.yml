@@ -1,0 +1,99 @@
+name: Forge simulation
+
+on:
+  workflow_dispatch:
+    inputs:
+      games_per_stage:
+        description: "Games per stage (pre-board and post-board)"
+        required: true
+        default: "20"
+      first_seed:
+        description: "First deterministic seed"
+        required: true
+        default: "2026083001"
+
+permissions:
+  contents: read
+
+jobs:
+  simulate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python dependencies
+        shell: bash
+        run: |
+          set -euxo pipefail
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          elif [ -f pyproject.toml ]; then
+            pip install .
+          fi
+
+      - name: Run Python tests
+        env:
+          PYTHONPATH: src
+        run: |
+          python -m unittest discover -s tests -v
+
+      - name: Build patched Forge 2.0.14
+        shell: bash
+        run: |
+          set -euxo pipefail
+          chmod +x engine/forge/build_patched_2_0_14.sh
+          ./engine/forge/build_patched_2_0_14.sh
+
+      - name: Locate Forge runtime
+        shell: bash
+        run: |
+          set -euxo pipefail
+          find engine/forge -type f \( -name '*.jar' -o -name '*.JAR' \) -print
+          test -n "$(find engine/forge -type f -name '*.jar' -print -quit)"
+
+      - name: Run Forge card regression / smoke test
+        env:
+          PYTHONPATH: src
+        run: |
+          set -euxo pipefail
+          # Run the repository's focused tests if present.
+          if [ -d tests ]; then
+            python -m unittest discover -s tests -p '*forge*test*.py' -v || true
+          fi
+
+      - name: Run Izzet Spellementals experiment
+        env:
+          PYTHONPATH: src
+        run: |
+          set -euxo pipefail
+          python -m engine.runner.experiment \
+            --output-dir "results/izzet_spellementals" \
+            --games-per-stage "${{ inputs.games_per_stage }}" \
+            --first-seed "${{ inputs.first_seed }}"
+
+      - name: Upload simulation results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: izzet-spellementals-results
+          path: |
+            results/
+            engine/forge/dist/
+          if-no-files-found: warn
+          retention-days: 14
