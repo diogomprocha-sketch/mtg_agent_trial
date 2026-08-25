@@ -1,0 +1,12 @@
+{
+  "version": "2.0.14",
+  "build_version": "2.0.14-SNAPSHOT-08.08",
+  "release_url": "https://github.com/Card-Forge/forge/releases/tag/forge-2.0.14",
+  "archive_url": "https://github.com/Card-Forge/forge/releases/download/forge-2.0.14/forge-installer-2.0.14.tar.bz2",
+  "archive_sha256": "e71749376945177d603d52a21a089bc1574330cf34599544b6bae1a04c83da41",
+  "executable_jar": "forge-gui-desktop-2.0.14-jar-with-dependencies.jar",
+  "java_requirement": "17+",
+  "simulation_entrypoint": "forge.view.Main sim",
+  "card_data_path": "res/cardsfolder/w/we_say_thee_nay.txt",
+  "card_support_checked_on": "2026-08-25"
+}
