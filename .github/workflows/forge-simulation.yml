@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       games_per_stage:
-        description: "Games per stage (pre-board and post-board)"
+        description: "Games per stage"
         required: true
         default: "20"
       first_seed:
@@ -21,14 +21,28 @@ jobs:
     timeout-minutes: 90
 
     steps:
+
+      # --------------------------------------------------
+      # CHECKOUT
+      # --------------------------------------------------
+
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      # --------------------------------------------------
+      # JAVA
+      # --------------------------------------------------
 
       - name: Set up Java 17
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
+          cache: maven
+
+      # --------------------------------------------------
+      # PYTHON
+      # --------------------------------------------------
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -39,38 +53,87 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
+
           python -m pip install --upgrade pip
 
           if [ -f requirements.txt ]; then
             python -m pip install -r requirements.txt
           elif [ -f pyproject.toml ]; then
             python -m pip install .
+          else
+            echo "No Python dependency file found."
           fi
 
-      - name: Run Python tests
+      # --------------------------------------------------
+      # CHECK BUILD SCRIPT
+      # --------------------------------------------------
+
+      - name: Check Forge build script
         shell: bash
-        env:
-          PYTHONPATH: src
         run: |
           set -euxo pipefail
-          if [ -d tests ]; then
-            python -m unittest discover -s tests -v
-          fi
+
+          test -f engine/forge/build_patched_2_0_14.sh
+
+          chmod +x engine/forge/build_patched_2_0_14.sh
+
+          echo "Forge build script found:"
+          ls -l engine/forge/build_patched_2_0_14.sh
+
+      # --------------------------------------------------
+      # DOWNLOAD FORGE 2.0.14
+      # --------------------------------------------------
 
       - name: Download Forge 2.0.14 source
         shell: bash
         run: |
           set -euxo pipefail
 
-          git clone --depth 1 \
+          rm -rf forge-2.0.14-source
+
+          git clone \
+            --depth 1 \
             --branch forge-2.0.14 \
             https://github.com/Card-Forge/forge.git \
             forge-2.0.14-source
 
           test -f forge-2.0.14-source/pom.xml
 
-          echo "Forge source:"
+          echo "Forge source successfully downloaded."
+
           git -C forge-2.0.14-source log -1 --oneline
+
+      # --------------------------------------------------
+      # FIX MAVEN SETTINGS
+      # --------------------------------------------------
+
+      - name: Create Maven local settings
+        shell: bash
+        run: |
+          set -euxo pipefail
+
+          mkdir -p .mvn
+
+          cat > .mvn/local-settings.xml <<'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <settings
+              xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+            <localRepository>${user.home}/.m2/repository</localRepository>
+
+          </settings>
+          EOF
+
+          echo "Created Maven settings:"
+          cat .mvn/local-settings.xml
+
+          test -f .mvn/local-settings.xml
+
+      # --------------------------------------------------
+      # BUILD PATCHED FORGE
+      # --------------------------------------------------
 
       - name: Build patched Forge 2.0.14
         shell: bash
@@ -82,23 +145,68 @@ jobs:
           ./engine/forge/build_patched_2_0_14.sh \
             "$GITHUB_WORKSPACE/forge-2.0.14-source"
 
+      # --------------------------------------------------
+      # LOCATE FORGE
+      # --------------------------------------------------
+
       - name: Locate Forge runtime
         shell: bash
         run: |
           set -euxo pipefail
 
-          find engine/forge -type f -name "*.jar" -print
+          echo "Searching for Forge JARs..."
 
-          JAR="$(find engine/forge -type f -name "*.jar" -print -quit)"
+          find . \
+            -type f \
+            -name "*.jar" \
+            -not -path "./.git/*" \
+            -print
 
-          test -n "$JAR"
+          JAR="$(find engine/forge forge-2.0.14-source \
+            -type f \
+            -name "*.jar" \
+            -print \
+            | head -n 1)"
 
-          echo "Forge JAR:"
+          if [ -z "$JAR" ]; then
+            echo "ERROR: No Forge JAR was produced."
+            exit 1
+          fi
+
+          echo "Forge runtime:"
           echo "$JAR"
 
+          echo "SHA256:"
           sha256sum "$JAR"
 
+          echo "FORGE_JAR=$GITHUB_WORKSPACE/$JAR" >> "$GITHUB_ENV"
+
+      # --------------------------------------------------
+      # FORGE REGRESSION TESTS
+      # --------------------------------------------------
+
       - name: Run Forge regression tests
+        shell: bash
+        run: |
+          set -euxo pipefail
+
+          cd forge-2.0.14-source
+
+          if [ -x ./mvnw ]; then
+            ./mvnw test \
+              -DskipTests=false \
+              -Dstyle.color=never
+          else
+            mvn test \
+              -DskipTests=false \
+              -Dstyle.color=never
+          fi
+
+      # --------------------------------------------------
+      # PYTHON TESTS
+      # --------------------------------------------------
+
+      - name: Run Python tests
         shell: bash
         env:
           PYTHONPATH: src
@@ -106,8 +214,16 @@ jobs:
           set -euxo pipefail
 
           if [ -d tests ]; then
-            python -m unittest discover -s tests -v
+            python -m unittest discover \
+              -s tests \
+              -v
+          else
+            echo "No tests directory found."
           fi
+
+      # --------------------------------------------------
+      # RUN IZZET SPELLEMENTALS EXPERIMENT
+      # --------------------------------------------------
 
       - name: Run Izzet Spellementals experiment
         shell: bash
@@ -118,28 +234,82 @@ jobs:
 
           mkdir -p results/izzet_spellementals
 
-          python -m engine.runner.experiment \
-            --output-dir results/izzet_spellementals \
-            --games-per-stage "${{ inputs.games_per_stage }}" \
-            --first-seed "${{ inputs.first_seed }}"
+          if [ -f engine/runner/experiment.py ]; then
+
+            python engine/runner/experiment.py \
+              --output-dir results/izzet_spellementals \
+              --games-per-stage "${{ inputs.games_per_stage }}" \
+              --first-seed "${{ inputs.first_seed }}"
+
+          elif [ -f engine/experiment.py ]; then
+
+            python engine/experiment.py \
+              --output-dir results/izzet_spellementals \
+              --games-per-stage "${{ inputs.games_per_stage }}" \
+              --first-seed "${{ inputs.first_seed }}"
+
+          elif [ -f scripts/run_experiment.py ]; then
+
+            python scripts/run_experiment.py \
+              --output-dir results/izzet_spellementals \
+              --games-per-stage "${{ inputs.games_per_stage }}" \
+              --first-seed "${{ inputs.first_seed }}"
+
+          else
+            echo "ERROR: Could not find the experiment runner."
+            echo
+            echo "Repository files:"
+            find . -maxdepth 4 -type f \
+              -not -path "./.git/*" \
+              | sort
+            exit 1
+          fi
+
+      # --------------------------------------------------
+      # DISPLAY RESULTS
+      # --------------------------------------------------
 
       - name: Display experiment results
         if: always()
         shell: bash
         run: |
-          echo "===== RESULTS ====="
+          echo "========================================"
+          echo "EXPERIMENT RESULTS"
+          echo "========================================"
 
           if [ -d results ]; then
-            find results -type f -print | sort
+
+            find results \
+              -type f \
+              -print \
+              | sort
 
             echo
-            echo "===== SUMMARIES ====="
+            echo "========================================"
+            echo "SUMMARY FILES"
+            echo "========================================"
 
-            find results -type f \
-              \( -name "summary.json" -o -name "report.md" \) \
+            find results \
+              -type f \
+              \( \
+                -name "summary.json" \
+                -o -name "report.md" \
+                -o -name "*.json" \
+              \) \
               -print \
-              -exec sh -c 'echo "--- $1 ---"; cat "$1"' _ {} \;
+              -exec sh -c '
+                echo
+                echo "----- $1 -----"
+                cat "$1"
+              ' _ {} \;
+
+          else
+            echo "No results directory was produced."
           fi
+
+      # --------------------------------------------------
+      # UPLOAD RESULTS
+      # --------------------------------------------------
 
       - name: Upload simulation results
         if: always()
@@ -148,6 +318,6 @@ jobs:
           name: izzet-spellementals-results
           path: |
             results/
-            engine/forge/dist/
+            engine/forge/
           if-no-files-found: warn
           retention-days: 14
