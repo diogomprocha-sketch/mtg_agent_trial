@@ -34,7 +34,12 @@ def run_experiment(
 ) -> list[dict]:
     if games_per_stage < 2 or games_per_stage % 2:
         raise ValueError("games_per_stage must be a positive even number")
-    if output_dir.exists() and any(output_dir.iterdir()):
+    existing = (
+        [path for path in output_dir.iterdir() if path.name != "validation"]
+        if output_dir.exists()
+        else []
+    )
+    if existing:
         raise FileExistsError(f"refusing to mix experiment data in {output_dir}")
 
     main = parse_deck(DIMIR_MAIN)
