@@ -1,0 +1,15 @@
+{
+  "agent_version": "0.1.0",
+  "decklist_hash": "ecb3dfde9db58b66905f889ed1c73402abe571ec4121340920e9181a63915547",
+  "engine_version": "2.0.14",
+  "first_result": "results/20260825T202833Z-620221a1.result.json",
+  "first_run": "20260825T202833Z-620221a1",
+  "normalized_game_log_sha256": "2f861315bc8295c38e4d309de60d4fb756dc866e1f14ecf267e0ea0e45d5f37b",
+  "opponent_list_hash": "75e3e9a0108867fb711c425a93c3ac6390b610c8d8a403409f41edb12a146461",
+  "random_seed": 12345,
+  "reproduced": true,
+  "second_result": "results/20260825T202854Z-85bcbb72.result.json",
+  "second_run": "20260825T202854Z-85bcbb72",
+  "trajectory_location": null,
+  "trajectory_capture_complete": false
+}

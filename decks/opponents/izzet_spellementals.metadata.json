@@ -1,0 +1,15 @@
+{
+  "name": "Izzet Spellementals",
+  "format": "Standard",
+  "player": "jakobpablo",
+  "event": "Standard Showcase Challenge 2026-08-22",
+  "finish": "2nd Place, 9-2",
+  "deck_date": "2026-08-22",
+  "retrieved_date": "2026-08-25",
+  "source": "MTGGoldfish",
+  "url": "https://www.mtggoldfish.com/archetype/standard-izzet-spellementals-woe#paper",
+  "original_source_url": "https://www.mtgo.com/decklist/standard-showcase-challenge-2026-08-2212852807",
+  "normalization": "Identical card names split by print version were quantity-consolidated; no cards were added, removed, or substituted.",
+  "main_sha256": "75e3e9a0108867fb711c425a93c3ac6390b610c8d8a403409f41edb12a146461",
+  "sideboard_sha256": "7ef7b481b251016ee11e9305a4c6957c43b2bda5d782803ecc44e62b626b140c"
+}
