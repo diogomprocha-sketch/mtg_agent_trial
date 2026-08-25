@@ -12,6 +12,10 @@ def main() -> int:
     parser.add_argument("--sideboard", type=Path)
     parser.add_argument("--opponent", type=Path, required=True)
     parser.add_argument("--opponent-sideboard", type=Path)
+    parser.add_argument("--sideboard-plan", type=Path)
+    starting_position = parser.add_mutually_exclusive_group()
+    starting_position.add_argument("--play", action="store_true")
+    starting_position.add_argument("--draw", action="store_true")
     parser.add_argument("--games", type=int, default=1)
     parser.add_argument("--seed", type=int, required=True)
     parser.add_argument("--timeout", type=int, default=120)
@@ -24,6 +28,8 @@ def main() -> int:
         sideboard=args.sideboard,
         opponent=args.opponent,
         opponent_sideboard=args.opponent_sideboard,
+        sideboard_plan=args.sideboard_plan,
+        play_draw="play" if args.play else "draw" if args.draw else None,
         games=args.games,
         seed=args.seed,
         timeout_seconds=args.timeout,

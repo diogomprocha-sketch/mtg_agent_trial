@@ -2,7 +2,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
 
-from engine.adapter.decks import parse_deck
+from engine.adapter.decks import apply_sideboard_plan, parse_deck, parse_sideboard_plan
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -144,6 +144,28 @@ class DeckParsingTests(unittest.TestCase):
             sideboard.source_hash,
             "7ef7b481b251016ee11e9305a4c6957c43b2bda5d782803ecc44e62b626b140c",
         )
+
+    def test_exact_izzet_sideboard_plan_is_reproducible(self):
+        main = parse_deck(MAIN)
+        sideboard = parse_deck(SIDEBOARD)
+        plan = parse_sideboard_plan(
+            ROOT / "data" / "sideboarding" / "izzet_spellementals.json"
+        )
+        first_main, first_sideboard = apply_sideboard_plan(main, sideboard, plan)
+        second_main, second_sideboard = apply_sideboard_plan(main, sideboard, plan)
+
+        self.assertEqual(first_main.card_count, 60)
+        self.assertEqual(first_sideboard.card_count, 15)
+        self.assertEqual(first_main, second_main)
+        self.assertEqual(first_sideboard, second_sideboard)
+        main_counts = {entry.card_name: entry.quantity for entry in first_main.entries}
+        self.assertEqual(main_counts["Raven Eagle"], 2)
+        self.assertEqual(main_counts["Strategic Betrayal"], 3)
+        self.assertEqual(main_counts["Duress"], 4)
+        self.assertNotIn("Requiting Hex", main_counts)
+        self.assertNotIn("Tishana's Tidebinder", main_counts)
+        self.assertNotIn("We Say Thee Nay!", main_counts)
+        self.assertEqual(main_counts["Wan Shi Tong, Librarian"], 1)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,35 @@
+{
+  "opponent_archetype": "Izzet Spellementals",
+  "in": [
+    {
+      "quantity": 2,
+      "card_name": "Raven Eagle"
+    },
+    {
+      "quantity": 3,
+      "card_name": "Strategic Betrayal"
+    },
+    {
+      "quantity": 4,
+      "card_name": "Duress"
+    }
+  ],
+  "out": [
+    {
+      "quantity": 4,
+      "card_name": "Requiting Hex"
+    },
+    {
+      "quantity": 2,
+      "card_name": "Tishana's Tidebinder"
+    },
+    {
+      "quantity": 2,
+      "card_name": "We Say Thee Nay!"
+    },
+    {
+      "quantity": 1,
+      "card_name": "Wan Shi Tong, Librarian"
+    }
+  ]
+}

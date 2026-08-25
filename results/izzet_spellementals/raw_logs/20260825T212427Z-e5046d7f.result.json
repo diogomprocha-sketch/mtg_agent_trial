@@ -1,0 +1,44 @@
+{
+  "agent_version": "0.1.0",
+  "configuration": {
+    "games": 1,
+    "play_draw": "draw",
+    "seed": 2026083011,
+    "sideboard_plan": null,
+    "timeout_seconds": 120
+  },
+  "decklist_hash": "ecb3dfde9db58b66905f889ed1c73402abe571ec4121340920e9181a63915547",
+  "effective_decklist_hash": "ecb3dfde9db58b66905f889ed1c73402abe571ec4121340920e9181a63915547",
+  "effective_sideboard_hash": "b18745d0c178930f66d8f3d1917e60e92d7b8260533715244a94fb6cdb0eb12c",
+  "engine_version": "2.0.14+mtg-agent.1",
+  "forge_log_location": "results/izzet_spellementals/raw_logs/20260825T212427Z-e5046d7f.forge.log",
+  "games_completed": 1,
+  "normalized_game_log_sha256": "729845dd004f9791495e7600a2d12f16f71bf69b91e914678ca15079f32b55ff",
+  "opponent_list_hash": "75e3e9a0108867fb711c425a93c3ac6390b610c8d8a403409f41edb12a146461",
+  "opponent_sideboard_hash": "7ef7b481b251016ee11e9305a4c6957c43b2bda5d782803ecc44e62b626b140c",
+  "process_exit_code": 0,
+  "result": [
+    {
+      "draw": false,
+      "duration_ms": 2548,
+      "game_length_turns": 21,
+      "game_number": 1,
+      "mulligan_count": 0,
+      "play_draw": "draw",
+      "seed": 2026083011,
+      "status": "COMPLETED_LOSS",
+      "trajectory_location": "results/izzet_spellementals/raw_logs/20260825T212427Z-e5046d7f.game-1.trajectory.jsonl",
+      "winner": "Ai(2)-Izzet Spellementals"
+    }
+  ],
+  "run_id": "20260825T212427Z-e5046d7f",
+  "sideboard_hash": "b18745d0c178930f66d8f3d1917e60e92d7b8260533715244a94fb6cdb0eb12c",
+  "sideboard_plan_hash": null,
+  "trajectory_capture_complete": false,
+  "trajectory_limitations": [
+    "Forge 2.0.14 does not expose opening-hand card identities in its game log.",
+    "Forge 2.0.14 does not expose a complete game-state snapshot per decision.",
+    "Forge 2.0.14 does not expose the complete legal-action set per decision.",
+    "Selected actions include only actions represented by Forge game-log events."
+  ]
+}

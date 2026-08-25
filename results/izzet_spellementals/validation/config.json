@@ -1,0 +1,29 @@
+{
+  "agent_version": "0.1.0",
+  "created_at": "2026-08-25T21:16:29.121591+00:00",
+  "decklist_hash": "ecb3dfde9db58b66905f889ed1c73402abe571ec4121340920e9181a63915547",
+  "engine_version": "2.0.14+mtg-agent.1",
+  "execution": "sequential",
+  "games_per_stage": 2,
+  "games_requested": 4,
+  "opponent_list_hash": "75e3e9a0108867fb711c425a93c3ac6390b610c8d8a403409f41edb12a146461",
+  "opponent_sideboard_hash": "7ef7b481b251016ee11e9305a4c6957c43b2bda5d782803ecc44e62b626b140c",
+  "postboard_decklist_hash": "ba0030e53eebad910f3759af06a8f658422a282acddf69182b92df71dbae3774",
+  "postboard_sideboard_hash": "1e640545a6d2c030ac4e3b22ae87e9cf1e1a0dea1f5a7f207c2b79eacb6f6bdb",
+  "seeds": [
+    2026082601,
+    2026082602,
+    2026082603,
+    2026082604
+  ],
+  "sideboard_hash": "b18745d0c178930f66d8f3d1917e60e92d7b8260533715244a94fb6cdb0eb12c",
+  "sideboard_plan": "data/sideboarding/izzet_spellementals.json",
+  "sideboard_plan_hash": "14437c6e371828a3f049ee9087366ed99dce908598621336c171399b60ca7747",
+  "trajectory_capture_complete": false,
+  "trajectory_limitations": [
+    "Opening-hand card identities are not exposed by the Forge 2.0.14 game log.",
+    "Complete game-state snapshots are not exposed by the Forge 2.0.14 game log.",
+    "Complete legal-action sets are not exposed by the Forge 2.0.14 game log.",
+    "Selected actions contain only actions represented by Forge game-log events."
+  ]
+}

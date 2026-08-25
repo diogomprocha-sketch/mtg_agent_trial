@@ -1,0 +1,519 @@
+Error handling registered!
+22:23:49 [INFO ] GuiBase: ##########################################
+22:23:49 [INFO ] GuiBase: APP: Forge v.2.0.14-SNAPSHOT-08.25
+22:23:49 [INFO ] GuiBase: Java: 17.0.20.1 (Homebrew)
+22:23:49 [INFO ] GuiBase: OS: Mac OS X 26.6.2 aarch64
+22:23:49 [INFO ] GuiBase: RAM: 4096 MB max, 12 CPUs
+22:23:49 [INFO ] GuiBase: ##########################################
+Language 'en-US' loaded successfully.
+(ThreadUtil first call): Running with priority 5
+Read cards: 33617 archived files in 0 ms (25 parts) using thread pool
+Read cards: 836 files in 0 ms (8 parts) using thread pool
+Simulation mode
+Ai(1)-Dimir Midrange vs Ai(2)-Izzet Spellementals - one game of Constructed seed 2026083006
+Mulligan: Ai(2)-Izzet Spellementals has mulliganed down to 6 cards.
+Mulligan: Ai(1)-Dimir Midrange has kept a hand of 7 cards
+Mulligan: Ai(2)-Izzet Spellementals has kept a hand of 6 cards
+Turn: Turn 1 (Ai(1)-Dimir Midrange)
+Phase: Ai(1)-Dimir Midrange's Untap step
+Phase: Ai(1)-Dimir Midrange's Upkeep step
+Phase: Ai(1)-Dimir Midrange's Draw step
+Phase: Ai(1)-Dimir Midrange's Main phase, precombat
+Land: Ai(1)-Dimir Midrange played Swamp (18)
+Phase: Ai(1)-Dimir Midrange's Beginning of Combat Step
+Phase: Ai(1)-Dimir Midrange's Declare Attackers Step
+Phase: Ai(1)-Dimir Midrange's Declare Blockers Step
+Phase: Ai(1)-Dimir Midrange's First Strike Damage Step
+Phase: Ai(1)-Dimir Midrange's Combat Damage Step
+Phase: Ai(1)-Dimir Midrange's End of Combat Step
+Phase: Ai(1)-Dimir Midrange's Main phase, postcombat
+Mana: Swamp (18) - {T}: Add {B}.
+Add To Stack: Ai(1)-Dimir Midrange cast Dream Beavers
+Resolve Stack: Dream Beavers - Creature 1 / 1
+Add To Stack: Ai(1)-Dimir Midrange triggered Dream Beavers targeting [Ai(2)-Izzet Spellementals]
+Life: Life: Ai(2)-Izzet Spellementals 20 > 19
+Life: Life: Ai(1)-Dimir Midrange 20 > 21
+Resolve Stack: Ai(1)-Dimir Midrange scried 1 card(s) to the top of the library
+Resolve Stack: When this creature enters, each opponent loses 1 life and you gain 1 life. Scry 1. (Look at the top card of your library. You may put that card on the bottom.) (Targeting: [[Ai(2)-Izzet Spellementals]]) [Zone Changer: Dream Beavers (45)]
+Phase: Ai(1)-Dimir Midrange's End step
+Phase: Ai(1)-Dimir Midrange's Cleanup step
+Turn: Turn 2 (Ai(2)-Izzet Spellementals)
+Phase: Ai(2)-Izzet Spellementals' Untap step
+Phase: Ai(2)-Izzet Spellementals' Upkeep step
+Phase: Ai(2)-Izzet Spellementals' Draw step
+Phase: Ai(2)-Izzet Spellementals' Main phase, precombat
+Land: Ai(2)-Izzet Spellementals played Riverpyre Verge (121)
+Mana: Riverpyre Verge (121) - {T}: Add {R}.
+Add To Stack: Ai(2)-Izzet Spellementals cast Impractical Joke
+Damage: Impractical Joke (116) deals 3 damage to Dream Beavers (45).
+Resolve Stack: Impractical Joke (116) - Damage can't be prevented this turn. Impractical Joke deals 3 damage to up to one target creature or planeswalker. Impractical Joke (116) deals 3 damage to Dream Beavers (45).
+Zone Change: Dream Beavers (45) was put into Graveyard from Battlefield.
+Phase: Ai(2)-Izzet Spellementals' Beginning of Combat Step
+Phase: Ai(2)-Izzet Spellementals' Declare Attackers Step
+Phase: Ai(2)-Izzet Spellementals' Declare Blockers Step
+Phase: Ai(2)-Izzet Spellementals' First Strike Damage Step
+Phase: Ai(2)-Izzet Spellementals' Combat Damage Step
+Phase: Ai(2)-Izzet Spellementals' End of Combat Step
+Phase: Ai(2)-Izzet Spellementals' Main phase, postcombat
+Phase: Ai(2)-Izzet Spellementals' End step
+Phase: Ai(2)-Izzet Spellementals' Cleanup step
+Turn: Turn 3 (Ai(1)-Dimir Midrange)
+Phase: Ai(1)-Dimir Midrange's Untap step
+Phase: Ai(1)-Dimir Midrange's Upkeep step
+Phase: Ai(1)-Dimir Midrange's Draw step
+Phase: Ai(1)-Dimir Midrange's Main phase, precombat
+Land: Ai(1)-Dimir Midrange played Hidden Lair (5)
+Phase: Ai(1)-Dimir Midrange's Beginning of Combat Step
+Phase: Ai(1)-Dimir Midrange's Declare Attackers Step
+Phase: Ai(1)-Dimir Midrange's Declare Blockers Step
+Phase: Ai(1)-Dimir Midrange's First Strike Damage Step
+Phase: Ai(1)-Dimir Midrange's Combat Damage Step
+Phase: Ai(1)-Dimir Midrange's End of Combat Step
+Phase: Ai(1)-Dimir Midrange's Main phase, postcombat
+Mana: Swamp (18) - {T}: Add {B}.
+Add To Stack: Ai(1)-Dimir Midrange cast Dream Beavers
+Resolve Stack: Dream Beavers - Creature 1 / 1
+Add To Stack: Ai(1)-Dimir Midrange triggered Dream Beavers targeting [Ai(2)-Izzet Spellementals]
+Life: Life: Ai(2)-Izzet Spellementals 19 > 18
+Life: Life: Ai(1)-Dimir Midrange 21 > 22
+Resolve Stack: Ai(1)-Dimir Midrange scried 1 card(s) to the top of the library
+Resolve Stack: When this creature enters, each opponent loses 1 life and you gain 1 life. Scry 1. (Look at the top card of your library. You may put that card on the bottom.) (Targeting: [[Ai(2)-Izzet Spellementals]]) [Zone Changer: Dream Beavers (47)]
+Phase: Ai(1)-Dimir Midrange's End step
+Phase: Ai(1)-Dimir Midrange's Cleanup step
+Turn: Turn 4 (Ai(2)-Izzet Spellementals)
+Phase: Ai(2)-Izzet Spellementals' Untap step
+Phase: Ai(2)-Izzet Spellementals' Upkeep step
+Phase: Ai(2)-Izzet Spellementals' Draw step
+Phase: Ai(2)-Izzet Spellementals' Main phase, precombat
+Replacement Effect: Spirebluff Canal enters tapped unless you control two or fewer other lands.
+Land: Ai(2)-Izzet Spellementals played Spirebluff Canal (81)
+Mana: Spirebluff Canal (81) - {T}: Add {U} or {R}.
+Mana: Riverpyre Verge (121) - {T}: Add {R}.
+Add To Stack: Ai(2)-Izzet Spellementals cast Prismari Charm
+Damage: Prismari Charm (108) deals 1 damage to Dream Beavers (47).
+Damage: Prismari Charm (108) deals 1 non-combat damage to Ai(1)-Dimir Midrange.
+Life: Life: Ai(1)-Dimir Midrange 22 > 21
+Resolve Stack: Prismari Charm (108) -  Prismari Charm deals 1 damage to each of one or two targets. (Targeting: Dream Beavers (47) and Ai(1)-Dimir Midrange)
+Zone Change: Dream Beavers (47) was put into Graveyard from Battlefield.
+Phase: Ai(2)-Izzet Spellementals' Beginning of Combat Step
+Phase: Ai(2)-Izzet Spellementals' Declare Attackers Step
+Phase: Ai(2)-Izzet Spellementals' Declare Blockers Step
+Phase: Ai(2)-Izzet Spellementals' First Strike Damage Step
+Phase: Ai(2)-Izzet Spellementals' Combat Damage Step
+Phase: Ai(2)-Izzet Spellementals' End of Combat Step
+Phase: Ai(2)-Izzet Spellementals' Main phase, postcombat
+Phase: Ai(2)-Izzet Spellementals' End step
+Phase: Ai(2)-Izzet Spellementals' Cleanup step
+Turn: Turn 5 (Ai(1)-Dimir Midrange)
+Phase: Ai(1)-Dimir Midrange's Untap step
+Phase: Ai(1)-Dimir Midrange's Upkeep step
+Phase: Ai(1)-Dimir Midrange's Draw step
+Phase: Ai(1)-Dimir Midrange's Main phase, precombat
+Land: Ai(1)-Dimir Midrange played Soulstone Sanctuary (51)
+Phase: Ai(1)-Dimir Midrange's Beginning of Combat Step
+Phase: Ai(1)-Dimir Midrange's Declare Attackers Step
+Phase: Ai(1)-Dimir Midrange's Declare Blockers Step
+Phase: Ai(1)-Dimir Midrange's First Strike Damage Step
+Phase: Ai(1)-Dimir Midrange's Combat Damage Step
+Phase: Ai(1)-Dimir Midrange's End of Combat Step
+Phase: Ai(1)-Dimir Midrange's Main phase, postcombat
+Phase: Ai(1)-Dimir Midrange's End step
+Phase: Ai(1)-Dimir Midrange's Cleanup step
+Turn: Turn 6 (Ai(2)-Izzet Spellementals)
+Phase: Ai(2)-Izzet Spellementals' Untap step
+Phase: Ai(2)-Izzet Spellementals' Upkeep step
+Phase: Ai(2)-Izzet Spellementals' Draw step
+Phase: Ai(2)-Izzet Spellementals' Main phase, precombat
+Land: Ai(2)-Izzet Spellementals played Island (98)
+Phase: Ai(2)-Izzet Spellementals' Beginning of Combat Step
+Phase: Ai(2)-Izzet Spellementals' Declare Attackers Step
+Phase: Ai(2)-Izzet Spellementals' Declare Blockers Step
+Phase: Ai(2)-Izzet Spellementals' First Strike Damage Step
+Phase: Ai(2)-Izzet Spellementals' Combat Damage Step
+Phase: Ai(2)-Izzet Spellementals' End of Combat Step
+Phase: Ai(2)-Izzet Spellementals' Main phase, postcombat
+Phase: Ai(2)-Izzet Spellementals' End step
+Phase: Ai(2)-Izzet Spellementals' Cleanup step
+Turn: Turn 7 (Ai(1)-Dimir Midrange)
+Phase: Ai(1)-Dimir Midrange's Untap step
+Phase: Ai(1)-Dimir Midrange's Upkeep step
+Phase: Ai(1)-Dimir Midrange's Draw step
+Phase: Ai(1)-Dimir Midrange's Main phase, precombat
+Land: Ai(1)-Dimir Midrange played Gloomlake Verge (16)
+Mana: Gloomlake Verge (16) - {T}: Add {U}.
+Mana: Hidden Lair (5) - {T}: Add {U} or {B}. Activate only if this land entered this turn or if your control a basic land.
+Mana: Swamp (18) - {T}: Add {B}.
+Mana: Soulstone Sanctuary (51) - {T}: Add {C}.
+Add To Stack: Ai(1)-Dimir Midrange cast Wan Shi Tong, Librarian
+Mana: Island (98) - {T}: Add {U}.
+Mana: Spirebluff Canal (81) - {T}: Add {U} or {R}.
+Add To Stack: Ai(2)-Izzet Spellementals cast Get Out
+Zone Change: Send countered spell to Graveyard
+Resolve Stack: Get Out (127) -  Counter target creature or enchantment spell. (Targeting: Wan Shi Tong, Librarian - Creature 1 / 1 (X=0))
+Phase: Ai(1)-Dimir Midrange's Beginning of Combat Step
+Phase: Ai(1)-Dimir Midrange's Declare Attackers Step
+Phase: Ai(1)-Dimir Midrange's Declare Blockers Step
+Phase: Ai(1)-Dimir Midrange's First Strike Damage Step
+Phase: Ai(1)-Dimir Midrange's Combat Damage Step
+Phase: Ai(1)-Dimir Midrange's End of Combat Step
+Phase: Ai(1)-Dimir Midrange's Main phase, postcombat
+Phase: Ai(1)-Dimir Midrange's End step
+Phase: Ai(1)-Dimir Midrange's Cleanup step
+Turn: Turn 8 (Ai(2)-Izzet Spellementals)
+Phase: Ai(2)-Izzet Spellementals' Untap step
+Phase: Ai(2)-Izzet Spellementals' Upkeep step
+Phase: Ai(2)-Izzet Spellementals' Draw step
+Phase: Ai(2)-Izzet Spellementals' Main phase, precombat
+Land: Ai(2)-Izzet Spellementals played Island (96)
+Phase: Ai(2)-Izzet Spellementals' Beginning of Combat Step
+Phase: Ai(2)-Izzet Spellementals' Declare Attackers Step
+Phase: Ai(2)-Izzet Spellementals' Declare Blockers Step
+Phase: Ai(2)-Izzet Spellementals' First Strike Damage Step
+Phase: Ai(2)-Izzet Spellementals' Combat Damage Step
+Phase: Ai(2)-Izzet Spellementals' End of Combat Step
+Phase: Ai(2)-Izzet Spellementals' Main phase, postcombat
+Mana: Spirebluff Canal (81) - {T}: Add {U} or {R}.
+Mana: Island (98) - {T}: Add {U}.
+Mana: Island (96) - {T}: Add {U}.
+Add To Stack: Ai(2)-Izzet Spellementals cast Hearth Elemental
+Resolve Stack: Hearth Elemental - Creature 4 / 5
+Phase: Ai(2)-Izzet Spellementals' End step
+Phase: Ai(2)-Izzet Spellementals' Cleanup step
+Turn: Turn 9 (Ai(1)-Dimir Midrange)
+Phase: Ai(1)-Dimir Midrange's Untap step
+Phase: Ai(1)-Dimir Midrange's Upkeep step
+Mana: Swamp (18) - {T}: Add {B}.
+Mana: Gloomlake Verge (16) - {T}: Add {B}. Activate only if you control an Island or a Swamp.
+Add To Stack: Ai(1)-Dimir Midrange cast Shoot the Sheriff targeting [Hearth Elemental (105)]
+Zone Change: Hearth Elemental (105) was put into Graveyard from Battlefield.
+Resolve Stack: Shoot the Sheriff (36) - Destroy Hearth Elemental (105).
+Phase: Ai(1)-Dimir Midrange's Draw step
+Phase: Ai(1)-Dimir Midrange's Main phase, precombat
+Phase: Ai(1)-Dimir Midrange's Beginning of Combat Step
+Phase: Ai(1)-Dimir Midrange's Declare Attackers Step
+Phase: Ai(1)-Dimir Midrange's Declare Blockers Step
+Phase: Ai(1)-Dimir Midrange's First Strike Damage Step
+Phase: Ai(1)-Dimir Midrange's Combat Damage Step
+Phase: Ai(1)-Dimir Midrange's End of Combat Step
+Phase: Ai(1)-Dimir Midrange's Main phase, postcombat
+Phase: Ai(1)-Dimir Midrange's End step
+Phase: Ai(1)-Dimir Midrange's Cleanup step
+Turn: Turn 10 (Ai(2)-Izzet Spellementals)
+Phase: Ai(2)-Izzet Spellementals' Untap step
+Phase: Ai(2)-Izzet Spellementals' Upkeep step
+Phase: Ai(2)-Izzet Spellementals' Draw step
+Phase: Ai(2)-Izzet Spellementals' Main phase, precombat
+Replacement Effect: As Steam Vents enters, you may pay 2 life. If you don't, it enters tapped.
+Land: Ai(2)-Izzet Spellementals played Steam Vents (100)
+Phase: Ai(2)-Izzet Spellementals' Beginning of Combat Step
+Phase: Ai(2)-Izzet Spellementals' Declare Attackers Step
+Phase: Ai(2)-Izzet Spellementals' Declare Blockers Step
+Phase: Ai(2)-Izzet Spellementals' First Strike Damage Step
+Phase: Ai(2)-Izzet Spellementals' Combat Damage Step
+Phase: Ai(2)-Izzet Spellementals' End of Combat Step
+Phase: Ai(2)-Izzet Spellementals' Main phase, postcombat
+Phase: Ai(2)-Izzet Spellementals' End step
+Phase: Ai(2)-Izzet Spellementals' Cleanup step
+Turn: Turn 11 (Ai(1)-Dimir Midrange)
+Phase: Ai(1)-Dimir Midrange's Untap step
+Phase: Ai(1)-Dimir Midrange's Upkeep step
+Phase: Ai(1)-Dimir Midrange's Draw step
+Phase: Ai(1)-Dimir Midrange's Main phase, precombat
+Phase: Ai(1)-Dimir Midrange's Beginning of Combat Step
+Phase: Ai(1)-Dimir Midrange's Declare Attackers Step
+Phase: Ai(1)-Dimir Midrange's Declare Blockers Step
+Phase: Ai(1)-Dimir Midrange's First Strike Damage Step
+Phase: Ai(1)-Dimir Midrange's Combat Damage Step
+Phase: Ai(1)-Dimir Midrange's End of Combat Step
+Phase: Ai(1)-Dimir Midrange's Main phase, postcombat
+Mana: Gloomlake Verge (16) - {T}: Add {U}.
+Mana: Swamp (18) - {T}: Add {B}.
+Mana: Hidden Lair (5) - {T}: Add {C}.
+Mana: Soulstone Sanctuary (51) - {T}: Add {C}.
+Add To Stack: Ai(1)-Dimir Midrange cast Kaito, Bane of Nightmares
+Replacement Effect: Kaito, Bane of Nightmares enters with four loyalty counters on it.
+Resolve Stack: Kaito, Bane of Nightmares
+Add To Stack: Ai(1)-Dimir Midrange activated Kaito, Bane of Nightmares
+Resolve Stack: Ai(1)-Dimir Midrange surveiled 2 card(s) to the top of the library
+Resolve Stack: Kaito, Bane of Nightmares (33) - Ai(1)-Dimir Midrange surveils (2). Ai(1)-Dimir Midrange draws zero cards.
+Phase: Ai(1)-Dimir Midrange's End step
+Phase: Ai(1)-Dimir Midrange's Cleanup step
+Turn: Turn 12 (Ai(2)-Izzet Spellementals)
+Phase: Ai(2)-Izzet Spellementals' Untap step
+Phase: Ai(2)-Izzet Spellementals' Upkeep step
+Phase: Ai(2)-Izzet Spellementals' Draw step
+Phase: Ai(2)-Izzet Spellementals' Main phase, precombat
+Land: Ai(2)-Izzet Spellementals played Island (99)
+Phase: Ai(2)-Izzet Spellementals' Beginning of Combat Step
+Phase: Ai(2)-Izzet Spellementals' Declare Attackers Step
+Phase: Ai(2)-Izzet Spellementals' Declare Blockers Step
+Phase: Ai(2)-Izzet Spellementals' First Strike Damage Step
+Phase: Ai(2)-Izzet Spellementals' Combat Damage Step
+Phase: Ai(2)-Izzet Spellementals' End of Combat Step
+Phase: Ai(2)-Izzet Spellementals' Main phase, postcombat
+Phase: Ai(2)-Izzet Spellementals' End step
+Phase: Ai(2)-Izzet Spellementals' Cleanup step
+Turn: Turn 13 (Ai(1)-Dimir Midrange)
+Phase: Ai(1)-Dimir Midrange's Untap step
+Phase: Ai(1)-Dimir Midrange's Upkeep step
+Phase: Ai(1)-Dimir Midrange's Draw step
+Phase: Ai(1)-Dimir Midrange's Main phase, precombat
+Add To Stack: Ai(1)-Dimir Midrange activated Kaito, Bane of Nightmares
+Resolve Stack: Ai(1)-Dimir Midrange surveiled 2 card(s) to the top of the library
+Resolve Stack: Kaito, Bane of Nightmares (33) - Ai(1)-Dimir Midrange surveils (2). Ai(1)-Dimir Midrange draws zero cards.
+Phase: Ai(1)-Dimir Midrange's Beginning of Combat Step
+Phase: Ai(1)-Dimir Midrange's Declare Attackers Step
+Combat: Ai(1)-Dimir Midrange assigned Kaito, Bane of Nightmares (33) to attack Ai(2)-Izzet Spellementals.
+Phase: Ai(1)-Dimir Midrange's Declare Blockers Step
+Combat: Ai(2)-Izzet Spellementals didn't block Kaito, Bane of Nightmares (33).
+Phase: Ai(1)-Dimir Midrange's First Strike Damage Step
+Phase: Ai(1)-Dimir Midrange's Combat Damage Step
+Damage: Kaito, Bane of Nightmares (33) deals 3 combat damage to Ai(2)-Izzet Spellementals.
+Life: Life: Ai(2)-Izzet Spellementals 18 > 15
+Phase: Ai(1)-Dimir Midrange's End of Combat Step
+Phase: Ai(1)-Dimir Midrange's Main phase, postcombat
+Phase: Ai(1)-Dimir Midrange's End step
+Phase: Ai(1)-Dimir Midrange's Cleanup step
+Turn: Turn 14 (Ai(2)-Izzet Spellementals)
+Phase: Ai(2)-Izzet Spellementals' Untap step
+Phase: Ai(2)-Izzet Spellementals' Upkeep step
+Phase: Ai(2)-Izzet Spellementals' Draw step
+Phase: Ai(2)-Izzet Spellementals' Main phase, precombat
+Land: Ai(2)-Izzet Spellementals played Riverpyre Verge (118)
+Phase: Ai(2)-Izzet Spellementals' Beginning of Combat Step
+Phase: Ai(2)-Izzet Spellementals' Declare Attackers Step
+Phase: Ai(2)-Izzet Spellementals' Declare Blockers Step
+Phase: Ai(2)-Izzet Spellementals' First Strike Damage Step
+Phase: Ai(2)-Izzet Spellementals' Combat Damage Step
+Phase: Ai(2)-Izzet Spellementals' End of Combat Step
+Phase: Ai(2)-Izzet Spellementals' Main phase, postcombat
+Phase: Ai(2)-Izzet Spellementals' End step
+Phase: Ai(2)-Izzet Spellementals' Cleanup step
+Turn: Turn 15 (Ai(1)-Dimir Midrange)
+Phase: Ai(1)-Dimir Midrange's Untap step
+Phase: Ai(1)-Dimir Midrange's Upkeep step
+Phase: Ai(1)-Dimir Midrange's Draw step
+Phase: Ai(1)-Dimir Midrange's Main phase, precombat
+Phase: Ai(1)-Dimir Midrange's Beginning of Combat Step
+Phase: Ai(1)-Dimir Midrange's Declare Attackers Step
+Combat: Ai(1)-Dimir Midrange assigned Kaito, Bane of Nightmares (33) to attack Ai(2)-Izzet Spellementals.
+Phase: Ai(1)-Dimir Midrange's Declare Blockers Step
+Combat: Ai(2)-Izzet Spellementals didn't block Kaito, Bane of Nightmares (33).
+Phase: Ai(1)-Dimir Midrange's First Strike Damage Step
+Phase: Ai(1)-Dimir Midrange's Combat Damage Step
+Damage: Kaito, Bane of Nightmares (33) deals 3 combat damage to Ai(2)-Izzet Spellementals.
+Life: Life: Ai(2)-Izzet Spellementals 15 > 12
+Phase: Ai(1)-Dimir Midrange's End of Combat Step
+Phase: Ai(1)-Dimir Midrange's Main phase, postcombat
+Add To Stack: Ai(1)-Dimir Midrange activated Kaito, Bane of Nightmares
+Resolve Stack: Ai(1)-Dimir Midrange surveiled 2 card(s) to the top of the library
+Resolve Stack: Kaito, Bane of Nightmares (33) - Ai(1)-Dimir Midrange surveils (2). Ai(1)-Dimir Midrange draws a card.
+Phase: Ai(1)-Dimir Midrange's End step
+Phase: Ai(1)-Dimir Midrange's Cleanup step
+Turn: Turn 16 (Ai(2)-Izzet Spellementals)
+Phase: Ai(2)-Izzet Spellementals' Untap step
+Phase: Ai(2)-Izzet Spellementals' Upkeep step
+Phase: Ai(2)-Izzet Spellementals' Draw step
+Phase: Ai(2)-Izzet Spellementals' Main phase, precombat
+Replacement Effect: Stormcarved Coast enters tapped unless you control two or more other lands.
+Land: Ai(2)-Izzet Spellementals played Stormcarved Coast (82)
+Phase: Ai(2)-Izzet Spellementals' Beginning of Combat Step
+Phase: Ai(2)-Izzet Spellementals' Declare Attackers Step
+Phase: Ai(2)-Izzet Spellementals' Declare Blockers Step
+Phase: Ai(2)-Izzet Spellementals' First Strike Damage Step
+Phase: Ai(2)-Izzet Spellementals' Combat Damage Step
+Phase: Ai(2)-Izzet Spellementals' End of Combat Step
+Phase: Ai(2)-Izzet Spellementals' Main phase, postcombat
+Phase: Ai(2)-Izzet Spellementals' End step
+Phase: Ai(2)-Izzet Spellementals' Cleanup step
+Turn: Turn 17 (Ai(1)-Dimir Midrange)
+Phase: Ai(1)-Dimir Midrange's Untap step
+Phase: Ai(1)-Dimir Midrange's Upkeep step
+Phase: Ai(1)-Dimir Midrange's Draw step
+Phase: Ai(1)-Dimir Midrange's Main phase, precombat
+Phase: Ai(1)-Dimir Midrange's Beginning of Combat Step
+Phase: Ai(1)-Dimir Midrange's Declare Attackers Step
+Combat: Ai(1)-Dimir Midrange assigned Kaito, Bane of Nightmares (33) to attack Ai(2)-Izzet Spellementals.
+Phase: Ai(1)-Dimir Midrange's Declare Blockers Step
+Combat: Ai(2)-Izzet Spellementals didn't block Kaito, Bane of Nightmares (33).
+Phase: Ai(1)-Dimir Midrange's First Strike Damage Step
+Phase: Ai(1)-Dimir Midrange's Combat Damage Step
+Damage: Kaito, Bane of Nightmares (33) deals 3 combat damage to Ai(2)-Izzet Spellementals.
+Life: Life: Ai(2)-Izzet Spellementals 12 > 9
+Phase: Ai(1)-Dimir Midrange's End of Combat Step
+Phase: Ai(1)-Dimir Midrange's Main phase, postcombat
+Add To Stack: Ai(1)-Dimir Midrange activated Kaito, Bane of Nightmares
+Resolve Stack: Ai(1)-Dimir Midrange surveiled 2 card(s) to the top of the library
+Resolve Stack: Kaito, Bane of Nightmares (33) - Ai(1)-Dimir Midrange surveils (2). Ai(1)-Dimir Midrange draws a card.
+Mana: Gloomlake Verge (16) - {T}: Add {U}.
+Add To Stack: Ai(1)-Dimir Midrange cast Spyglass Siren
+Resolve Stack: Spyglass Siren - Creature 1 / 1
+Add To Stack: Ai(1)-Dimir Midrange triggered Spyglass Siren
+Resolve Stack: When Spyglass Siren enters, create a Map token. (It's an artifact with "{1}, {T}, Sacrifice this token: Target creature you control explores. Activate only as a sorcery.") [Zone Changer: Spyglass Siren (60)]
+Mana: Swamp (18) - {T}: Add {B}.
+Zone Change: Map Token (155) was put into Graveyard from Battlefield.
+Add To Stack: Ai(1)-Dimir Midrange activated Map Token targeting [Kaito, Bane of Nightmares (33)]
+Resolve Stack: Map Token (155) - Kaito, Bane of Nightmares (33) explores. 
+Phase: Ai(1)-Dimir Midrange's End step
+Phase: Ai(1)-Dimir Midrange's Cleanup step
+Turn: Turn 18 (Ai(2)-Izzet Spellementals)
+Phase: Ai(2)-Izzet Spellementals' Untap step
+Phase: Ai(2)-Izzet Spellementals' Upkeep step
+Phase: Ai(2)-Izzet Spellementals' Draw step
+Mana: Spirebluff Canal (81) - {T}: Add {U} or {R}.
+Mana: Island (98) - {T}: Add {U}.
+Mana: Island (96) - {T}: Add {U}.
+Mana: Island (99) - {T}: Add {U}.
+Mana: Stormcarved Coast (82) - {T}: Add {U} or {R}.
+Add To Stack: Ai(2)-Izzet Spellementals cast Burst Lightning targeting [Kaito, Bane of Nightmares (33)]
+Resolve Stack: Burst Lightning (112) - Burst Lightning (112) deals 4 damage to Kaito, Bane of Nightmares (33).
+Zone Change: Kaito, Bane of Nightmares (33) was put into Graveyard from Battlefield.
+Phase: Ai(2)-Izzet Spellementals' Main phase, precombat
+Phase: Ai(2)-Izzet Spellementals' Beginning of Combat Step
+Phase: Ai(2)-Izzet Spellementals' Declare Attackers Step
+Phase: Ai(2)-Izzet Spellementals' Declare Blockers Step
+Phase: Ai(2)-Izzet Spellementals' First Strike Damage Step
+Phase: Ai(2)-Izzet Spellementals' Combat Damage Step
+Phase: Ai(2)-Izzet Spellementals' End of Combat Step
+Phase: Ai(2)-Izzet Spellementals' Main phase, postcombat
+Phase: Ai(2)-Izzet Spellementals' End step
+Phase: Ai(2)-Izzet Spellementals' Cleanup step
+Turn: Turn 19 (Ai(1)-Dimir Midrange)
+Phase: Ai(1)-Dimir Midrange's Untap step
+Phase: Ai(1)-Dimir Midrange's Upkeep step
+Phase: Ai(1)-Dimir Midrange's Draw step
+Phase: Ai(1)-Dimir Midrange's Main phase, precombat
+Phase: Ai(1)-Dimir Midrange's Beginning of Combat Step
+Phase: Ai(1)-Dimir Midrange's Declare Attackers Step
+Combat: Ai(1)-Dimir Midrange assigned Spyglass Siren (60) to attack Ai(2)-Izzet Spellementals.
+Phase: Ai(1)-Dimir Midrange's Declare Blockers Step
+Combat: Ai(2)-Izzet Spellementals didn't block Spyglass Siren (60).
+Phase: Ai(1)-Dimir Midrange's First Strike Damage Step
+Phase: Ai(1)-Dimir Midrange's Combat Damage Step
+Damage: Spyglass Siren (60) deals 1 combat damage to Ai(2)-Izzet Spellementals.
+Life: Life: Ai(2)-Izzet Spellementals 9 > 8
+Phase: Ai(1)-Dimir Midrange's End of Combat Step
+Phase: Ai(1)-Dimir Midrange's Main phase, postcombat
+Phase: Ai(1)-Dimir Midrange's End step
+Mana: Gloomlake Verge (16) - {T}: Add {U}.
+Mana: Hidden Lair (5) - {T}: Add {U} or {B}. Activate only if this land entered this turn or if your control a basic land.
+Mana: Swamp (18) - {T}: Add {B}.
+Mana: Soulstone Sanctuary (51) - {T}: Add {C}.
+Add To Stack: Ai(1)-Dimir Midrange cast Enduring Curiosity
+Resolve Stack: Enduring Curiosity - Creature 4 / 3
+Mana: Riverpyre Verge (121) - {T}: Add {U}. Activate only if you control an Island or a Mountain.
+Mana: Steam Vents (100) - {T}: Add {U}.
+Mana: Riverpyre Verge (118) - {T}: Add {U}. Activate only if you control an Island or a Mountain.
+Add To Stack: Ai(2)-Izzet Spellementals cast Eddymurk Crab
+Replacement Effect: Eddymurk Crab enters tapped if it's not your turn.
+Resolve Stack: Eddymurk Crab - Creature 5 / 5
+Add To Stack: Ai(2)-Izzet Spellementals triggered Eddymurk Crab targeting [Enduring Curiosity (48)]
+Resolve Stack: When Eddymurk Crab enters, tap up to two target creatures. (Targeting: [[Enduring Curiosity (48)]]) [Zone Changer: Eddymurk Crab (86)]
+Phase: Ai(1)-Dimir Midrange's Cleanup step
+Turn: Turn 20 (Ai(2)-Izzet Spellementals)
+Phase: Ai(2)-Izzet Spellementals' Untap step
+Phase: Ai(2)-Izzet Spellementals' Upkeep step
+Phase: Ai(2)-Izzet Spellementals' Draw step
+Phase: Ai(2)-Izzet Spellementals' Main phase, precombat
+Phase: Ai(2)-Izzet Spellementals' Beginning of Combat Step
+Phase: Ai(2)-Izzet Spellementals' Declare Attackers Step
+Combat: Ai(2)-Izzet Spellementals assigned Eddymurk Crab (86) to attack Ai(1)-Dimir Midrange.
+Phase: Ai(2)-Izzet Spellementals' Declare Blockers Step
+Combat: Ai(1)-Dimir Midrange didn't block Eddymurk Crab (86).
+Phase: Ai(2)-Izzet Spellementals' First Strike Damage Step
+Phase: Ai(2)-Izzet Spellementals' Combat Damage Step
+Damage: Eddymurk Crab (86) deals 5 combat damage to Ai(1)-Dimir Midrange.
+Life: Life: Ai(1)-Dimir Midrange 21 > 16
+Phase: Ai(2)-Izzet Spellementals' End of Combat Step
+Phase: Ai(2)-Izzet Spellementals' Main phase, postcombat
+Phase: Ai(2)-Izzet Spellementals' End step
+Phase: Ai(2)-Izzet Spellementals' Cleanup step
+Turn: Turn 21 (Ai(1)-Dimir Midrange)
+Phase: Ai(1)-Dimir Midrange's Untap step
+Phase: Ai(1)-Dimir Midrange's Upkeep step
+Mana: Swamp (18) - {T}: Add {B}.
+Mana: Gloomlake Verge (16) - {T}: Add {B}. Activate only if you control an Island or a Swamp.
+Life: Life: Ai(1)-Dimir Midrange 16 > 13
+Add To Stack: Ai(1)-Dimir Midrange cast Bitter Triumph targeting [Eddymurk Crab (86)]
+Mana: Island (98) - {T}: Add {U}.
+Mana: Island (96) - {T}: Add {U}.
+Mana: Island (99) - {T}: Add {U}.
+Add To Stack: Ai(2)-Izzet Spellementals cast Eddymurk Crab
+Mana: Hidden Lair (5) - {T}: Add {U} or {B}. Activate only if this land entered this turn or if your control a basic land.
+Mana: Soulstone Sanctuary (51) - {T}: Add {C}.
+Life: Life: Ai(1)-Dimir Midrange 13 > 10
+Add To Stack: Ai(1)-Dimir Midrange cast Bitter Triumph targeting [Eddymurk Crab (86)]
+Mana: Spirebluff Canal (81) - {T}: Add {U} or {R}.
+Mana: Stormcarved Coast (82) - {T}: Add {U} or {R}.
+Add To Stack: Ai(2)-Izzet Spellementals cast Get Out
+Resolve Stack: Get Out (126) -  Return one or two target creatures and/or enchantments you own to your hand. (Targeting: Eddymurk Crab (86))
+Mana: Riverpyre Verge (121) - {T}: Add {U}. Activate only if you control an Island or a Mountain.
+Mana: Steam Vents (100) - {T}: Add {U}.
+Add To Stack: Ai(2)-Izzet Spellementals cast Eddymurk Crab
+Replacement Effect: Eddymurk Crab enters tapped if it's not your turn.
+Resolve Stack: Eddymurk Crab - Creature 5 / 5
+Add To Stack: Ai(2)-Izzet Spellementals triggered Eddymurk Crab targeting [Enduring Curiosity (48), Spyglass Siren (60)]
+Resolve Stack: When Eddymurk Crab enters, tap up to two target creatures. (Targeting: [[Enduring Curiosity (48), Spyglass Siren (60)]]) [Zone Changer: Eddymurk Crab (86)]
+Resolve Stack: Bitter Triumph ability fizzles.
+Replacement Effect: Eddymurk Crab enters tapped if it's not your turn.
+Resolve Stack: Eddymurk Crab - Creature 5 / 5
+Add To Stack: Ai(2)-Izzet Spellementals triggered Eddymurk Crab targeting [Enduring Curiosity (48), Spyglass Siren (60)]
+Resolve Stack: When Eddymurk Crab enters, tap up to two target creatures. (Targeting: [[Enduring Curiosity (48), Spyglass Siren (60)]]) [Zone Changer: Eddymurk Crab (85)]
+Resolve Stack: Bitter Triumph ability fizzles.
+Phase: Ai(1)-Dimir Midrange's Draw step
+Phase: Ai(1)-Dimir Midrange's Main phase, precombat
+Phase: Ai(1)-Dimir Midrange's Beginning of Combat Step
+Phase: Ai(1)-Dimir Midrange's Declare Attackers Step
+Phase: Ai(1)-Dimir Midrange's Declare Blockers Step
+Phase: Ai(1)-Dimir Midrange's First Strike Damage Step
+Phase: Ai(1)-Dimir Midrange's Combat Damage Step
+Phase: Ai(1)-Dimir Midrange's End of Combat Step
+Phase: Ai(1)-Dimir Midrange's Main phase, postcombat
+Phase: Ai(1)-Dimir Midrange's End step
+Phase: Ai(1)-Dimir Midrange's Cleanup step
+Turn: Turn 22 (Ai(2)-Izzet Spellementals)
+Phase: Ai(2)-Izzet Spellementals' Untap step
+Phase: Ai(2)-Izzet Spellementals' Upkeep step
+Phase: Ai(2)-Izzet Spellementals' Draw step
+Phase: Ai(2)-Izzet Spellementals' Main phase, precombat
+Phase: Ai(2)-Izzet Spellementals' Beginning of Combat Step
+Phase: Ai(2)-Izzet Spellementals' Declare Attackers Step
+Combat: Ai(2)-Izzet Spellementals assigned Eddymurk Crab (86) and Eddymurk Crab (85) to attack Ai(1)-Dimir Midrange.
+Phase: Ai(2)-Izzet Spellementals' Declare Blockers Step
+Combat: Ai(1)-Dimir Midrange didn't block Eddymurk Crab (86).
+Ai(1)-Dimir Midrange didn't block Eddymurk Crab (85).
+Phase: Ai(2)-Izzet Spellementals' First Strike Damage Step
+Phase: Ai(2)-Izzet Spellementals' Combat Damage Step
+Damage: Eddymurk Crab (86) deals 5 combat damage to Ai(1)-Dimir Midrange.
+Damage: Eddymurk Crab (85) deals 5 combat damage to Ai(1)-Dimir Midrange.
+Life: Life: Ai(1)-Dimir Midrange 10 > 0
+Player Control: Ai(1)-Dimir Midrange has restored control over themself
+Player Control: Ai(2)-Izzet Spellementals has restored control over themself
+Game Outcome: Turn 11
+Game Outcome: Ai(1)-Dimir Midrange has lost because life total reached 0
+Game Outcome: Ai(2)-Izzet Spellementals has won because all opponents have lost
+Match Result: Ai(1)-Dimir Midrange: 0 Ai(2)-Izzet Spellementals: 1 
+
+Game Result: Game 1 ended in 2006 ms. Ai(2)-Izzet Spellementals has won!
+
+Upcoming set Star Trek (TRK) dated in the future. All `upcoming` cards will be added to this set with unknown rarity.
+The card A-Alrund's Epiphany was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. 
+The card A-Baba Lysaga, Night Witch was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. 
+The card A-Divide by Zero was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. 
+The card A-Esika's Chariot was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. 
+The card A-Faceless Haven was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. 
+The card A-Fires of Invention was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. 
+The card A-Goldspan Dragon was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. 
+The card A-Hullbreaker Horror was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. 
+The card A-Kumano Faces Kakkazan was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. 
+The card A-Luminarch Aspirant was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. 
+The card A-Monster Manual was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. 
+The card A-Omnath, Locus of Creation was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. 
+The card A-The Meathook Massacre was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. 
+The card A-Unholy Heat was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. 
+The card Blinding Radiance was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. 
+The card Goblin Bruiser was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. 
+The card Ogre Painbringer was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. 
+The card Titanic Pelagosaur was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. 
+The card Treetop Recluse was not assigned to any set. Adding it to UNKNOWN set... to fix see res/editions/ folder. 
+Upcoming set Star Trek (TRK) dated in the future. All `upcoming` cards will be added to this set with unknown rarity.
