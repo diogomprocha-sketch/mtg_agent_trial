@@ -18,7 +18,7 @@ permissions:
 jobs:
   simulate:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
 
     steps:
       - name: Checkout repository
@@ -35,24 +35,10 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Inspect repository
-        shell: bash
-        run: |
-          set -euxo pipefail
-          echo "Repository:"
-          pwd
-          echo
-          echo "Top-level files:"
-          find . -maxdepth 2 -type f | sort | head -200
-          echo
-          echo "Forge files:"
-          find engine/forge -maxdepth 4 -type f 2>/dev/null | sort | head -200 || true
-
       - name: Install Python dependencies
         shell: bash
         run: |
           set -euxo pipefail
-
           python -m pip install --upgrade pip
 
           if [ -f requirements.txt ]; then
@@ -67,23 +53,24 @@ jobs:
           PYTHONPATH: src
         run: |
           set -euxo pipefail
-
           if [ -d tests ]; then
             python -m unittest discover -s tests -v
-          else
-            echo "No tests directory found; continuing."
           fi
 
-      - name: Check Forge build script
+      - name: Download Forge 2.0.14 source
         shell: bash
         run: |
           set -euxo pipefail
 
-          test -f engine/forge/build_patched_2_0_14.sh
-          chmod +x engine/forge/build_patched_2_0_14.sh
+          git clone --depth 1 \
+            --branch forge-2.0.14 \
+            https://github.com/Card-Forge/forge.git \
+            forge-2.0.14-source
 
-          echo "Build script:"
-          sed -n '1,240p' engine/forge/build_patched_2_0_14.sh
+          test -f forge-2.0.14-source/pom.xml
+
+          echo "Forge source:"
+          git -C forge-2.0.14-source log -1 --oneline
 
       - name: Build patched Forge 2.0.14
         shell: bash
@@ -91,27 +78,24 @@ jobs:
           set -euxo pipefail
 
           chmod +x engine/forge/build_patched_2_0_14.sh
-          ./engine/forge/build_patched_2_0_14.sh
+
+          ./engine/forge/build_patched_2_0_14.sh \
+            "$GITHUB_WORKSPACE/forge-2.0.14-source"
 
       - name: Locate Forge runtime
         shell: bash
         run: |
           set -euxo pipefail
 
-          echo "Searching for Forge JARs..."
-          find engine/forge -type f \( -name "*.jar" -o -name "*.JAR" \) -print
+          find engine/forge -type f -name "*.jar" -print
 
           JAR="$(find engine/forge -type f -name "*.jar" -print -quit)"
 
-          if [ -z "$JAR" ]; then
-            echo "ERROR: No Forge JAR was produced."
-            exit 1
-          fi
+          test -n "$JAR"
 
-          echo "Forge runtime found:"
+          echo "Forge JAR:"
           echo "$JAR"
 
-          echo "SHA-256:"
           sha256sum "$JAR"
 
       - name: Run Forge regression tests
@@ -143,20 +127,18 @@ jobs:
         if: always()
         shell: bash
         run: |
-          echo "===== RESULT FILES ====="
+          echo "===== RESULTS ====="
 
           if [ -d results ]; then
-            find results -type f -maxdepth 5 -print | sort
+            find results -type f -print | sort
 
             echo
-            echo "===== SUMMARY FILES ====="
+            echo "===== SUMMARIES ====="
 
             find results -type f \
-              \( -name "summary.json" -o -name "report.md" -o -name "*.jsonl" \) \
+              \( -name "summary.json" -o -name "report.md" \) \
               -print \
-              -exec sh -c 'echo "--- $1 ---"; head -200 "$1"' _ {} \;
-          else
-            echo "No results directory was created."
+              -exec sh -c 'echo "--- $1 ---"; cat "$1"' _ {} \;
           fi
 
       - name: Upload simulation results
