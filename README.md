@@ -18,25 +18,39 @@ candidate and its evaluator breakdown is retained in a JSON-serializable
 
 ## Forge smoke runner
 
-The runner uses Forge 2.0.14's verified desktop `sim` entry point:
+The runner uses a tested Forge 2.0.14 patch over the desktop `sim` entry point:
 
 ```sh
 python -m engine.runner \
   --deck decks/dimir_midrange/main.txt \
   --opponent decks/opponents/izzet_spellementals.txt \
   --games 1 \
-  --seed 12345
+  --seed 12345 \
+  --play
 ```
 
 The Forge distribution is intentionally ignored by Git. Its expected artifact,
-version, and checksum are recorded in `engine/forge/manifest.json`; install it at
-`engine/forge/dist/2.0.14` or set `MTG_FORGE_HOME`. The runner stores the raw
-Forge log and a structured result under `results/`.
+version, local patch, and patched checksum are recorded in
+`engine/forge/manifest.json`. The patch fixes Teamwork total-power cost
+preflight and adds explicit starting-player control. Build it with
+`engine/forge/build_patched_2_0_14.sh /path/to/forge-2.0.14-source`, install it
+at `engine/forge/dist/2.0.14`, or set `MTG_FORGE_HOME`.
 
 Forge's stock simulation output does not expose opening hands, every game-state
-snapshot, or every legal/chosen action. Results therefore explicitly set
-`trajectory_capture_complete` to `false`; they must not be treated as complete
-training trajectories or used to start a large experiment.
+snapshot, or every legal action. The runner persists all available mulligan,
+turn, phase, and selected game-log action events as JSONL and explicitly marks
+unavailable fields and `trajectory_capture_complete` as `false`.
+
+The exact Izzet sideboard transform is stored in
+`data/sideboarding/izzet_spellementals.json`. Reproducible sequential
+experiments can be run with:
+
+```sh
+python -m engine.runner.experiment \
+  --output-dir results/izzet_spellementals \
+  --games-per-stage 20 \
+  --first-seed 2026083001
+```
 
 Run the focused suite with:
 

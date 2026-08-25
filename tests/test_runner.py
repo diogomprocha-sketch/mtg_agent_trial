@@ -2,7 +2,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
 
-from engine.runner.runner import ForgeRunner, SimulationRequest
+from engine.runner.runner import ForgeRunner, GameStatus, SimulationRequest
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -57,6 +57,61 @@ Game Result: Game 2 ended in a Draw! Took 120000 ms.
             ForgeRunner.normalized_game_log_sha256(second),
         )
 
+    def test_classifies_timeout_without_counting_a_result(self):
+        request = SimulationRequest(
+            deck=ROOT / "decks" / "dimir_midrange" / "main.txt",
+            opponent=ROOT / "decks" / "opponents" / "izzet_spellementals.txt",
+            games=1,
+            seed=7,
+            timeout_seconds=1,
+            output_dir=ROOT / "results",
+            play_draw="play",
+        )
+        games = ForgeRunner._classify_results(
+            (),
+            output="Stopping slow match as draw\n",
+            request=request,
+            run_id="timeout-test",
+            output_dir=ROOT / "results",
+            timed_out=False,
+            process_exit_code=0,
+        )
+        self.assertEqual(games[0].status, GameStatus.FAILED_TIMEOUT)
+        self.assertIsNone(games[0].winner)
+        self.assertFalse(games[0].draw)
+
+    def test_trajectory_is_structured_and_marks_unavailable_fields(self):
+        output = """\
+Mulligan: Ai(1)-Dimir Midrange has kept a hand of 7 cards
+Turn: Turn 1 (Ai(1)-Dimir Midrange)
+Phase: Ai(1)-Dimir Midrange's Main phase, precombat
+Land: Ai(1)-Dimir Midrange played Island
+Game Result: Game 1 ended in 10 ms. Ai(1)-Dimir Midrange has won!
+"""
+        with TemporaryDirectory() as directory:
+            path = Path(directory) / "trajectory.jsonl"
+            ForgeRunner._write_trajectory(
+                path,
+                output,
+                game_id="game-1",
+                seed=9,
+                play_draw="play",
+                winner="Ai(1)-Dimir Midrange",
+                game_length_turns=1,
+            )
+            import json
+
+            records = [
+                json.loads(line)
+                for line in path.read_text(encoding="utf-8").splitlines()
+            ]
+        self.assertEqual(records[0]["seed"], 9)
+        self.assertIsNone(records[0]["opening_hand"])
+        self.assertFalse(records[0]["opening_hand_available"])
+        land = next(record for record in records if record.get("selected_action"))
+        self.assertIsNone(land["legal_actions"])
+        self.assertFalse(land["game_state"]["snapshot_complete"])
+
 
 @unittest.skipUnless(
     (FORGE_HOME / "forge-gui-desktop-2.0.14-jar-with-dependencies.jar").is_file(),
@@ -93,6 +148,30 @@ class ForgeIntegrationTests(unittest.TestCase):
             )
             self.assertIn("cast We Say Thee Nay!", first_log)
             self.assertIn("Send countered spell to Graveyard", first_log)
+
+    def test_forced_play_and_draw_change_the_starting_player(self):
+        with TemporaryDirectory() as directory:
+            positions = []
+            for play_draw, seed in (("play", 43101), ("draw", 43102)):
+                request = SimulationRequest(
+                    deck=ROOT / "decks" / "dimir_midrange" / "main.txt",
+                    sideboard=None,
+                    opponent=ROOT / "decks" / "opponents" / "izzet_spellementals.txt",
+                    opponent_sideboard=None,
+                    games=1,
+                    seed=seed,
+                    timeout_seconds=120,
+                    output_dir=Path(directory),
+                    play_draw=play_draw,
+                )
+                result = ForgeRunner(FORGE_HOME).run(request)
+                self.assertEqual(result.exit_code, 0)
+                self.assertIn(
+                    result.games[0].status,
+                    (GameStatus.COMPLETED_WIN, GameStatus.COMPLETED_LOSS),
+                )
+                positions.append(result.games[0].play_draw)
+            self.assertEqual(positions, ["play", "draw"])
 
 
 if __name__ == "__main__":

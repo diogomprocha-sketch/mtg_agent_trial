@@ -1,0 +1,113 @@
+{
+  "average_game_length_turns": 19.0,
+  "common_losing_patterns": [
+    [
+      "Add To Stack: Ai(1)-Dimir Midrange activated Restless Reef",
+      12
+    ],
+    [
+      "Add To Stack: Ai(1)-Dimir Midrange triggered Restless Reef targeting [Ai(2)-Izzet Spellementals]",
+      7
+    ],
+    [
+      "Land: Ai(2)-Izzet Spellementals played Steam Vents",
+      6
+    ],
+    [
+      "Add To Stack: Ai(2)-Izzet Spellementals cast Eddymurk Crab",
+      6
+    ],
+    [
+      "Add To Stack: Ai(2)-Izzet Spellementals cast Opt",
+      5
+    ]
+  ],
+  "common_winning_patterns": [
+    [
+      "Add To Stack: Ai(1)-Dimir Midrange activated Kaito, Bane of Nightmares",
+      8
+    ],
+    [
+      "Add To Stack: Ai(1)-Dimir Midrange cast Spyglass Siren",
+      6
+    ],
+    [
+      "Add To Stack: Ai(1)-Dimir Midrange triggered Spyglass Siren",
+      6
+    ],
+    [
+      "Add To Stack: Ai(1)-Dimir Midrange activated Map Token targeting [Spyglass Siren]",
+      4
+    ],
+    [
+      "Land: Ai(1)-Dimir Midrange played Gloomlake Verge",
+      4
+    ]
+  ],
+  "draw": {
+    "games": 2,
+    "losses": 2,
+    "wilson_95": [
+      0.0,
+      0.6576197724933469
+    ],
+    "win_rate": 0.0,
+    "wins": 0
+  },
+  "failed_games": 0,
+  "mulligan_rate": 0.0,
+  "overall": {
+    "games": 4,
+    "losses": 2,
+    "wilson_95": [
+      0.15003898915214947,
+      0.8499610108478506
+    ],
+    "win_rate": 0.5,
+    "wins": 2
+  },
+  "play": {
+    "games": 2,
+    "losses": 0,
+    "wilson_95": [
+      0.34238022750665303,
+      1.0
+    ],
+    "win_rate": 1.0,
+    "wins": 2
+  },
+  "postboard": {
+    "games": 2,
+    "losses": 1,
+    "wilson_95": [
+      0.09453120573423074,
+      0.9054687942657693
+    ],
+    "win_rate": 0.5,
+    "wins": 1
+  },
+  "preboard": {
+    "games": 2,
+    "losses": 1,
+    "wilson_95": [
+      0.09453120573423074,
+      0.9054687942657693
+    ],
+    "win_rate": 0.5,
+    "wins": 1
+  },
+  "sample_size": 4,
+  "sideboard_impact": 0.0,
+  "win_rate_by_mulligan_count": {
+    "0": {
+      "games": 4,
+      "losses": 2,
+      "wilson_95": [
+        0.15003898915214947,
+        0.8499610108478506
+      ],
+      "win_rate": 0.5,
+      "wins": 2
+    }
+  }
+}

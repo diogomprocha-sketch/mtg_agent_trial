@@ -7,6 +7,8 @@
   "executable_jar": "forge-gui-desktop-2.0.14-jar-with-dependencies.jar",
   "java_requirement": "17+",
   "simulation_entrypoint": "forge.view.Main sim",
+  "local_patch": "engine/forge/patches/forge-2.0.14-mtg-agent.patch",
+  "patched_jar_sha256": "061f2de33ff9d4f0ba40fc6a8afc82ec547fe74a0468191d8ec4a331e506ce88",
   "card_data_path": "res/cardsfolder/w/we_say_thee_nay.txt",
   "card_support_checked_on": "2026-08-25"
 }
