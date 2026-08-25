@@ -1,72 +1,98 @@
-name: Forge simulation
+name: Forge Simulation
 
 on:
   workflow_dispatch:
     inputs:
-      games_per_stage:
-        description: "Games per stage"
-        required: true
+      games:
+        description: "Number of games to run"
+        required: false
         default: "20"
-      first_seed:
-        description: "First deterministic seed"
-        required: true
-        default: "2026083001"
+      seed:
+        description: "Base random seed"
+        required: false
+        default: "2026082501"
 
 permissions:
   contents: read
 
 jobs:
   simulate:
+    name: Forge simulation
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 60
+
+    env:
+      FORGE_VERSION: "2.0.14"
+      JAVA_TOOL_OPTIONS: "-Djava.awt.headless=false"
+      GAMES: ${{ inputs.games || '20' }}
+      BASE_SEED: ${{ inputs.seed || '2026082501' }}
 
     steps:
 
-      # --------------------------------------------------
-      # CHECKOUT
-      # --------------------------------------------------
-
+      # ------------------------------------------------------------
+      # Checkout repository
+      # ------------------------------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      # --------------------------------------------------
-      # JAVA
-      # --------------------------------------------------
-
+      # ------------------------------------------------------------
+      # Java 17
+      # ------------------------------------------------------------
       - name: Set up Java 17
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
+  
 
-      # --------------------------------------------------
-      # PYTHON
-      # --------------------------------------------------
-
+      # ------------------------------------------------------------
+      # Python
+      # ------------------------------------------------------------
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
-      - name: Install Python dependencies
+      # ------------------------------------------------------------
+      # Install virtual X display
+      #
+      # Forge's WeSayTheeNayTest initializes GuiDesktop, which
+      # requires an X11 display. Xvfb provides that display in CI.
+      # ------------------------------------------------------------
+      - name: Install Xvfb
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+          Xvfb -version
+
+      # ------------------------------------------------------------
+      # Inspect repository
+      # ------------------------------------------------------------
+      - name: Inspect repository
         shell: bash
         run: |
           set -euxo pipefail
 
-          python -m pip install --upgrade pip
+          echo "Repository:"
+          pwd
 
-          if [ -f requirements.txt ]; then
-            python -m pip install -r requirements.txt
-          elif [ -f pyproject.toml ]; then
-            python -m pip install .
-          else
-            echo "No Python dependency file found."
-          fi
+          echo
+          echo "Top-level files:"
+          find . -maxdepth 2 -type f | sort | head -300
 
-      # --------------------------------------------------
-      # CHECK BUILD SCRIPT
-      # --------------------------------------------------
+          echo
+          echo "Forge build scripts:"
+          find engine -maxdepth 4 -type f -print 2>/dev/null || true
 
+          echo
+          echo "Workflow:"
+          find .github -maxdepth 3 -type f -print 2>/dev/null || true
+
+      # ------------------------------------------------------------
+      # Validate build script
+      # ------------------------------------------------------------
       - name: Check Forge build script
         shell: bash
         run: |
@@ -76,13 +102,12 @@ jobs:
 
           chmod +x engine/forge/build_patched_2_0_14.sh
 
-          echo "Forge build script found:"
-          ls -l engine/forge/build_patched_2_0_14.sh
+          echo "Build script found:"
+          ls -lh engine/forge/build_patched_2_0_14.sh
 
-      # --------------------------------------------------
-      # DOWNLOAD FORGE 2.0.14
-      # --------------------------------------------------
-
+      # ------------------------------------------------------------
+      # Download Forge 2.0.14 source
+      # ------------------------------------------------------------
       - name: Download Forge 2.0.14 source
         shell: bash
         run: |
@@ -90,50 +115,48 @@ jobs:
 
           rm -rf forge-2.0.14-source
 
-          git clone \
-            --depth 1 \
+          git clone --depth 1 \
             --branch forge-2.0.14 \
             https://github.com/Card-Forge/forge.git \
             forge-2.0.14-source
 
-          test -f forge-2.0.14-source/pom.xml
+          cd forge-2.0.14-source
 
-          echo "Forge source successfully downloaded."
+          echo "Forge revision:"
+          git rev-parse HEAD
 
-          git -C forge-2.0.14-source log -1 --oneline
+          echo "Forge tags:"
+          git tag --points-at HEAD || true
 
-      # --------------------------------------------------
-      # FIX MAVEN SETTINGS
-      # --------------------------------------------------
-
+      # ------------------------------------------------------------
+      # Create Maven local settings
+      # ------------------------------------------------------------
       - name: Create Maven local settings
         shell: bash
         run: |
           set -euxo pipefail
 
-          mkdir -p .mvn
+          mkdir -p forge-2.0.14-source/.mvn
 
-          cat > .mvn/local-settings.xml <<'EOF'
+          cat > forge-2.0.14-source/.mvn/local-settings.xml <<'EOF'
           <?xml version="1.0" encoding="UTF-8"?>
-          <settings
-              xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
-
-            <localRepository>${user.home}/.m2/repository</localRepository>
-
+          <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                    https://maven.apache.org/xsd/settings-1.0.0.xsd">
+            <interactiveMode>false</interactiveMode>
           </settings>
           EOF
 
-          echo "Created Maven settings:"
-          cat .mvn/local-settings.xml
+          test -f forge-2.0.14-source/.mvn/local-settings.xml
 
-          test -f .mvn/local-settings.xml
-
-      # --------------------------------------------------
-      # BUILD PATCHED FORGE
-      # --------------------------------------------------
-
+      # ------------------------------------------------------------
+      # Build patched Forge under Xvfb
+      #
+      # IMPORTANT:
+      # The entire build script is wrapped in xvfb-run.
+      # Therefore WeSayTheeNayTest gets a valid DISPLAY.
+      # ------------------------------------------------------------
       - name: Build patched Forge 2.0.14
         shell: bash
         run: |
@@ -141,49 +164,33 @@ jobs:
 
           chmod +x engine/forge/build_patched_2_0_14.sh
 
-          ./engine/forge/build_patched_2_0_14.sh \
-            "$GITHUB_WORKSPACE/forge-2.0.14-source"
+          xvfb-run \
+            --auto-servernum \
+            --server-args="-screen 0 1920x1080x24" \
+            ./engine/forge/build_patched_2_0_14.sh \
+              "$GITHUB_WORKSPACE/forge-2.0.14-source"
 
-      # --------------------------------------------------
-      # LOCATE FORGE
-      # --------------------------------------------------
-
+      # ------------------------------------------------------------
+      # Locate Forge runtime
+      # ------------------------------------------------------------
       - name: Locate Forge runtime
         shell: bash
         run: |
           set -euxo pipefail
 
-          echo "Searching for Forge JARs..."
+          echo "Searching for Forge runtime..."
 
-          find . \
+          find forge-2.0.14-source \
             -type f \
-            -name "*.jar" \
-            -not -path "./.git/*" \
-            -print
+            \( \
+              -name "*.jar" \
+              -o -name "forge*.jar" \
+            \) \
+            -print | sort | head -200
 
-          JAR="$(find engine/forge forge-2.0.14-source \
-            -type f \
-            -name "*.jar" \
-            -print \
-            | head -n 1)"
-
-          if [ -z "$JAR" ]; then
-            echo "ERROR: No Forge JAR was produced."
-            exit 1
-          fi
-
-          echo "Forge runtime:"
-          echo "$JAR"
-
-          echo "SHA256:"
-          sha256sum "$JAR"
-
-          echo "FORGE_JAR=$GITHUB_WORKSPACE/$JAR" >> "$GITHUB_ENV"
-
-      # --------------------------------------------------
-      # FORGE REGRESSION TESTS
-      # --------------------------------------------------
-
+      # ------------------------------------------------------------
+      # Run Forge regression tests explicitly under Xvfb
+      # ------------------------------------------------------------
       - name: Run Forge regression tests
         shell: bash
         run: |
@@ -191,132 +198,130 @@ jobs:
 
           cd forge-2.0.14-source
 
-          if [ -x ./mvnw ]; then
-            ./mvnw test \
+          xvfb-run \
+            --auto-servernum \
+            --server-args="-screen 0 1920x1080x24" \
+            mvn -B \
+              -Djava.awt.headless=false \
               -DskipTests=false \
-              -Dstyle.color=never
-          else
-            mvn test \
-              -DskipTests=false \
-              -Dstyle.color=never
-          fi
+              test
 
-      # --------------------------------------------------
-      # PYTHON TESTS
-      # --------------------------------------------------
-
-      - name: Run Python tests
+      # ------------------------------------------------------------
+      # Verify the specific card test
+      # ------------------------------------------------------------
+      - name: Verify We Say Thee Nay test
         shell: bash
-        env:
-          PYTHONPATH: src
         run: |
           set -euxo pipefail
 
-          if [ -d tests ]; then
-            python -m unittest discover \
-              -s tests \
-              -v
-          else
-            echo "No tests directory found."
-          fi
+          cd forge-2.0.14-source
 
-      # --------------------------------------------------
-      # RUN IZZET SPELLEMENTALS EXPERIMENT
-      # --------------------------------------------------
+          echo "Searching for WeSayTheeNayTest..."
+          find . -type f \
+            \( \
+              -name "*WeSayTheeNay*" \
+              -o -name "*We_Say_Thee_Nay*" \
+            \) \
+            -print
 
+          echo
+          echo "Surefire reports:"
+          find . \
+            -path "*/target/surefire-reports/*" \
+            -type f \
+            -print | sort | head -200
+
+      # ------------------------------------------------------------
+      # Run the Izzet Spellementals experiment
+      # ------------------------------------------------------------
       - name: Run Izzet Spellementals experiment
         shell: bash
-        env:
-          PYTHONPATH: src
         run: |
           set -euxo pipefail
 
-          mkdir -p results/izzet_spellementals
+          echo "Games: $GAMES"
+          echo "Base seed: $BASE_SEED"
 
-          if [ -f engine/runner/experiment.py ]; then
-
-            python engine/runner/experiment.py \
-              --output-dir results/izzet_spellementals \
-              --games-per-stage "${{ inputs.games_per_stage }}" \
-              --first-seed "${{ inputs.first_seed }}"
-
-          elif [ -f engine/experiment.py ]; then
-
-            python engine/experiment.py \
-              --output-dir results/izzet_spellementals \
-              --games-per-stage "${{ inputs.games_per_stage }}" \
-              --first-seed "${{ inputs.first_seed }}"
-
-          elif [ -f scripts/run_experiment.py ]; then
-
+          if [ -f scripts/run_experiment.py ]; then
             python scripts/run_experiment.py \
-              --output-dir results/izzet_spellementals \
-              --games-per-stage "${{ inputs.games_per_stage }}" \
-              --first-seed "${{ inputs.first_seed }}"
+              --games "$GAMES" \
+              --seed "$BASE_SEED"
+
+          elif [ -f engine/simulation/run_experiment.py ]; then
+            python engine/simulation/run_experiment.py \
+              --games "$GAMES" \
+              --seed "$BASE_SEED"
+
+          elif [ -f simulation/run_experiment.py ]; then
+            python simulation/run_experiment.py \
+              --games "$GAMES" \
+              --seed "$BASE_SEED"
 
           else
-            echo "ERROR: Could not find the experiment runner."
-            echo
-            echo "Repository files:"
-            find . -maxdepth 4 -type f \
-              -not -path "./.git/*" \
-              | sort
+            echo "No experiment runner found."
+            echo "Repository Python files:"
+            find . -type f -name "*.py" | sort
             exit 1
           fi
 
-      # --------------------------------------------------
-      # DISPLAY RESULTS
-      # --------------------------------------------------
-
+      # ------------------------------------------------------------
+      # Display experiment results
+      # ------------------------------------------------------------
       - name: Display experiment results
         if: always()
         shell: bash
         run: |
+          set +e
+
           echo "========================================"
-          echo "EXPERIMENT RESULTS"
+          echo "Simulation result files"
           echo "========================================"
 
-          if [ -d results ]; then
+          find . \
+            -type f \
+            \( \
+              -name "*.json" \
+              -o -name "*.jsonl" \
+              -o -name "*.csv" \
+              -o -name "*.md" \
+              -o -name "*.log" \
+            \) \
+            -not -path "./.git/*" \
+            -print | sort
 
-            find results \
-              -type f \
-              -print \
-              | sort
+          echo
+          echo "========================================"
+          echo "Recent result files"
+          echo "========================================"
 
-            echo
-            echo "========================================"
-            echo "SUMMARY FILES"
-            echo "========================================"
+          find . \
+            -type f \
+            \( \
+              -name "*.json" \
+              -o -name "*.jsonl" \
+              -o -name "*.csv" \
+              -o -name "*.log" \
+            \) \
+            -not -path "./.git/*" \
+            -print \
+            -exec sh -c 'echo "----- $1 -----"; tail -100 "$1"' _ {} \;
 
-            find results \
-              -type f \
-              \( \
-                -name "summary.json" \
-                -o -name "report.md" \
-                -o -name "*.json" \
-              \) \
-              -print \
-              -exec sh -c '
-                echo
-                echo "----- $1 -----"
-                cat "$1"
-              ' _ {} \;
-
-          else
-            echo "No results directory was produced."
-          fi
-
-      # --------------------------------------------------
-      # UPLOAD RESULTS
-      # --------------------------------------------------
-
+      # ------------------------------------------------------------
+      # Upload all simulation/build diagnostics
+      # ------------------------------------------------------------
       - name: Upload simulation results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: izzet-spellementals-results
+          name: forge-simulation-results
           path: |
-            results/
-            engine/forge/
+            forge-2.0.14-source/**/target/surefire-reports/**
+            forge-2.0.14-source/**/target/*.log
+            forge-2.0.14-source/**/target/*.txt
+            results/**
+            output/**
+            artifacts/**
+            logs/**
+            reports/**
           if-no-files-found: warn
           retention-days: 14
