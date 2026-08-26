@@ -12,41 +12,91 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # ------------------------------------------------------------
-      # Checkout
-      # ------------------------------------------------------------
+
+      # ============================================================
+      # CHECKOUT
+      # ============================================================
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ------------------------------------------------------------
-      # Java
-      # ------------------------------------------------------------
+
+      # ============================================================
+      # JAVA
+      # ============================================================
+
       - name: Set up Java 17
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
-          
-      # ------------------------------------------------------------
-      # Python
-      # ------------------------------------------------------------
+          cache: maven
+
+
+      # ============================================================
+      # PYTHON
+      # ============================================================
+
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: "3.x"
 
-      # ------------------------------------------------------------
-      # Install and start virtual X server
+
+      # ============================================================
+      # FIND ANY Xvfb VERSION CALL
+      #
+      # This runs BEFORE Xvfb is installed.
+      #
+      # If --version exists anywhere in our repository, this will
+      # tell us exactly which file contains it.
+      # ============================================================
+
+      - name: Find every Xvfb version call
+        shell: bash
+        run: |
+          set -euxo pipefail
+
+          echo "=========================================="
+          echo "SEARCHING REPOSITORY FOR Xvfb"
+          echo "=========================================="
+
+          grep -RniE \
+            --exclude-dir=.git \
+            --exclude-dir=target \
+            --exclude-dir=.m2 \
+            'Xvfb|xvfb' \
+            . || true
+
+          echo "=========================================="
+          echo "SEARCHING SPECIFICALLY FOR Xvfb --version"
+          echo "=========================================="
+
+          grep -RniE \
+            --exclude-dir=.git \
+            --exclude-dir=target \
+            --exclude-dir=.m2 \
+            'Xvfb[[:space:]]+(-{1,2})version|xvfb[[:space:]]+(-{1,2})version' \
+            . || true
+
+          echo "=========================================="
+          echo "SEARCH COMPLETE"
+          echo "=========================================="
+
+
+      # ============================================================
+      # INSTALL XVFB
       #
       # IMPORTANT:
-      # Do NOT run:
+      #
+      # We DO NOT run:
+      #
       #   Xvfb --version
       #   Xvfb -version
       #
-      # Some Xvfb builds reject both arguments and print:
-      #   Fatal server error:
-      #   Unrecognized option: --version
-      # ------------------------------------------------------------
+      # because this Xvfb build rejects those arguments.
+      # ============================================================
+
       - name: Install Xvfb
         shell: bash
         run: |
@@ -59,30 +109,35 @@ jobs:
             x11-utils \
             xauth
 
-          echo "===== Xvfb binary ====="
+          echo "=========================================="
+          echo "Xvfb executable"
+          echo "=========================================="
+
           command -v Xvfb
+
+          type -a Xvfb
+
           ls -l "$(command -v Xvfb)"
 
-          echo "===== Xvfb package ====="
-          dpkg-query -W -f='${Package} ${Version}\n' xvfb
+          readlink -f "$(command -v Xvfb)"
 
-          echo "===== x11-utils package ====="
-          dpkg-query -W -f='${Package} ${Version}\n' x11-utils
+          echo "=========================================="
+          echo "Xvfb package"
+          echo "=========================================="
 
-          # Remove any stale X server from a previous attempt.
-          if [ -f /tmp/xvfb.pid ]; then
-            kill "$(cat /tmp/xvfb.pid)" 2>/dev/null || true
-            rm -f /tmp/xvfb.pid
-          fi
+          dpkg-query \
+            -W \
+            -f='${Package} ${Version}\n' \
+            xvfb
 
-          # Remove stale X11 socket if one exists.
+          echo "=========================================="
+          echo "Starting Xvfb"
+          echo "=========================================="
+
+          rm -f /tmp/xvfb.pid
+          rm -f /tmp/xvfb.log
           rm -f /tmp/.X11-unix/X99
 
-          # --------------------------------------------------------
-          # Start Xvfb.
-          #
-          # There is deliberately NO --version/-version check here.
-          # --------------------------------------------------------
           Xvfb :99 \
             -screen 0 1280x1024x24 \
             -ac \
@@ -93,67 +148,73 @@ jobs:
 
           echo "$XVFB_PID" > /tmp/xvfb.pid
 
-          echo "Started Xvfb with PID: $XVFB_PID"
+          echo "Xvfb PID: $XVFB_PID"
 
-          # --------------------------------------------------------
-          # Wait for the X server to become available.
-          # --------------------------------------------------------
+          echo "=========================================="
+          echo "Waiting for Xvfb"
+          echo "=========================================="
+
           for i in {1..30}; do
+
             if kill -0 "$XVFB_PID" 2>/dev/null \
               && [ -S /tmp/.X11-unix/X99 ]; then
 
-              echo "Xvfb socket is available."
+              echo "Xvfb is ready."
+
               break
             fi
 
-            echo "Waiting for Xvfb... attempt $i/30"
+            echo "Waiting for Xvfb... $i/30"
+
             sleep 1
+
           done
 
-          # --------------------------------------------------------
-          # Verify that the X server process is still alive.
-          # --------------------------------------------------------
+          echo "=========================================="
+          echo "Xvfb process"
+          echo "=========================================="
+
+          ps -fp "$XVFB_PID" || true
+
+          ps aux | grep '[X]vfb' || true
+
+          echo "=========================================="
+          echo "Xvfb log"
+          echo "=========================================="
+
+          cat /tmp/xvfb.log || true
+
           if ! kill -0 "$XVFB_PID" 2>/dev/null; then
-            echo "ERROR: Xvfb process exited."
 
-            echo "===== Xvfb log ====="
+            echo "ERROR: Xvfb terminated."
+
             cat /tmp/xvfb.log || true
 
             exit 1
+
           fi
 
-          # --------------------------------------------------------
-          # Verify X11 socket.
-          # --------------------------------------------------------
           if [ ! -S /tmp/.X11-unix/X99 ]; then
-            echo "ERROR: Xvfb did not create X11 socket."
 
-            echo "===== Xvfb log ====="
+            echo "ERROR: X11 socket was not created."
+
             cat /tmp/xvfb.log || true
 
             exit 1
+
           fi
 
-          # Make DISPLAY available to all following GitHub steps.
           echo "DISPLAY=:99" >> "$GITHUB_ENV"
 
           export DISPLAY=:99
 
           echo "DISPLAY=$DISPLAY"
 
-          # --------------------------------------------------------
-          # Verify X server using xdpyinfo.
-          # --------------------------------------------------------
-          xdpyinfo
 
-          echo "======================================"
-          echo "Xvfb is running correctly."
-          echo "DISPLAY=$DISPLAY"
-          echo "======================================"
+      # ============================================================
+      # VERIFY DISPLAY
+      # ============================================================
 
-      # ------------------------------------------------------------
-      # Additional graphical environment verification
-      # ------------------------------------------------------------
       - name: Verify graphical environment
         shell: bash
         env:
@@ -165,17 +226,21 @@ jobs:
 
           test -S /tmp/.X11-unix/X99
 
-          echo "===== X server information ====="
-          xdpyinfo | head -80
+          echo "=========================================="
+          echo "Testing X display"
+          echo "=========================================="
 
-          echo "===== X server process ====="
-          ps aux | grep '[X]vfb' || true
+          xdpyinfo
 
-          echo "Virtual X display is working."
+          echo "=========================================="
+          echo "Virtual X display is working"
+          echo "=========================================="
 
-      # ------------------------------------------------------------
-      # Check repository build script
-      # ------------------------------------------------------------
+
+      # ============================================================
+      # CHECK BUILD SCRIPT
+      # ============================================================
+
       - name: Check Forge build script
         shell: bash
         run: |
@@ -185,12 +250,46 @@ jobs:
 
           chmod +x engine/forge/build_patched_2_0_14.sh
 
-          echo "===== Build script ====="
-          sed -n '1,240p' engine/forge/build_patched_2_0_14.sh
+          echo "=========================================="
+          echo "BUILD SCRIPT"
+          echo "=========================================="
 
-      # ------------------------------------------------------------
-      # Download Forge 2.0.14
-      # ------------------------------------------------------------
+          sed -n '1,400p' \
+            engine/forge/build_patched_2_0_14.sh
+
+
+      # ============================================================
+      # SEARCH BUILD SCRIPT FOR XVFB / VERSION
+      # ============================================================
+
+      - name: Inspect build script for Xvfb calls
+        shell: bash
+        run: |
+          set -euxo pipefail
+
+          echo "=========================================="
+          echo "Xvfb references in build script"
+          echo "=========================================="
+
+          grep -niE \
+            'Xvfb|xvfb' \
+            engine/forge/build_patched_2_0_14.sh \
+            || true
+
+          echo "=========================================="
+          echo "Version calls in build script"
+          echo "=========================================="
+
+          grep -niE \
+            'Xvfb[[:space:]]+(-{1,2})version|xvfb[[:space:]]+(-{1,2})version' \
+            engine/forge/build_patched_2_0_14.sh \
+            || true
+
+
+      # ============================================================
+      # DOWNLOAD FORGE
+      # ============================================================
+
       - name: Download Forge 2.0.14 source
         shell: bash
         run: |
@@ -206,15 +305,23 @@ jobs:
 
           cd forge-2.0.14-source
 
-          echo "===== Forge commit ====="
+          echo "=========================================="
+          echo "FORGE COMMIT"
+          echo "=========================================="
+
           git rev-parse HEAD
 
-          echo "===== Forge branch ====="
+          echo "=========================================="
+          echo "FORGE BRANCH"
+          echo "=========================================="
+
           git branch --show-current
 
-      # ------------------------------------------------------------
-      # Maven settings
-      # ------------------------------------------------------------
+
+      # ============================================================
+      # MAVEN SETTINGS
+      # ============================================================
+
       - name: Create Maven local settings
         shell: bash
         run: |
@@ -226,15 +333,19 @@ jobs:
           <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                     xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
+
             <interactiveMode>false</interactiveMode>
+
           </settings>
           EOF
 
           echo "Maven settings created."
 
-      # ------------------------------------------------------------
-      # Build patched Forge
-      # ------------------------------------------------------------
+
+      # ============================================================
+      # BUILD PATCHED FORGE
+      # ============================================================
+
       - name: Build patched Forge 2.0.14
         shell: bash
         env:
@@ -245,46 +356,58 @@ jobs:
         run: |
           set -euxo pipefail
 
-          echo "======================================"
-          echo "Building patched Forge 2.0.14"
-          echo "DISPLAY=$DISPLAY"
-          echo "JAVA_TOOL_OPTIONS=$JAVA_TOOL_OPTIONS"
-          echo "MAVEN_OPTS=$MAVEN_OPTS"
-          echo "======================================"
+          echo "=========================================="
+          echo "BUILDING PATCHED FORGE"
+          echo "=========================================="
 
-          chmod +x engine/forge/build_patched_2_0_14.sh
+          echo "DISPLAY=$DISPLAY"
+
+          echo "JAVA_TOOL_OPTIONS=$JAVA_TOOL_OPTIONS"
+
+          echo "MAVEN_OPTS=$MAVEN_OPTS"
+
+          chmod +x \
+            engine/forge/build_patched_2_0_14.sh
 
           ./engine/forge/build_patched_2_0_14.sh \
             "$GITHUB_WORKSPACE/forge-2.0.14-source"
 
-      # ------------------------------------------------------------
-      # Locate generated Forge artifacts
-      # ------------------------------------------------------------
+
+      # ============================================================
+      # LOCATE FORGE ARTIFACTS
+      # ============================================================
+
       - name: Locate Forge runtime
         if: always()
         shell: bash
         run: |
           set +e
 
-          echo "===== Forge JAR files ====="
+          echo "=========================================="
+          echo "FORGE JARS"
+          echo "=========================================="
 
           find forge-2.0.14-source \
             -type f \
             -name "*.jar" \
             -print \
-            | head -200
+            | head -300
 
-          echo "===== Forge ZIP files ====="
+          echo "=========================================="
+          echo "FORGE ZIP FILES"
+          echo "=========================================="
 
           find forge-2.0.14-source \
             -type f \
             -name "*.zip" \
             -print \
-            | head -200
+            | head -300
 
-      # ------------------------------------------------------------
-      # Run Forge regression tests
-      # ------------------------------------------------------------
+
+      # ============================================================
+      # REGRESSION TESTS
+      # ============================================================
+
       - name: Run Forge regression tests
         if: success()
         shell: bash
@@ -300,20 +423,25 @@ jobs:
 
           echo "DISPLAY=$DISPLAY"
 
-          # Make sure Java is running in headful mode.
           java \
             -Djava.awt.headless=false \
             -version
 
           if [ -x ./mvnw ]; then
+
             ./mvnw -ntp test
+
           else
+
             mvn -ntp test
+
           fi
 
-      # ------------------------------------------------------------
-      # Run Izzet Spellementals experiment
-      # ------------------------------------------------------------
+
+      # ============================================================
+      # IZZET SPELLEMENTALS EXPERIMENT
+      # ============================================================
+
       - name: Run Izzet Spellementals experiment
         if: success()
         shell: bash
@@ -326,25 +454,34 @@ jobs:
           set -euxo pipefail
 
           if [ -f scripts/izzet_spellementals.sh ]; then
-            chmod +x scripts/izzet_spellementals.sh
+
+            chmod +x \
+              scripts/izzet_spellementals.sh
 
             ./scripts/izzet_spellementals.sh
+
           else
-            echo "Izzet Spellementals experiment script not present; skipping."
+
+            echo "Izzet Spellementals experiment script not present."
+
+            echo "Skipping experiment."
+
           fi
 
-      # ------------------------------------------------------------
-      # Collect diagnostics
-      # ------------------------------------------------------------
+
+      # ============================================================
+      # COLLECT RESULTS
+      # ============================================================
+
       - name: Display experiment results
         if: always()
         shell: bash
         run: |
           set +e
 
-          echo "======================================"
-          echo "Forge build/test artifacts"
-          echo "======================================"
+          echo "=========================================="
+          echo "FORGE BUILD / TEST ARTIFACTS"
+          echo "=========================================="
 
           find forge-2.0.14-source \
             -type f \
@@ -357,27 +494,29 @@ jobs:
               -o -name "*.dumpstream" \
             \) \
             -print \
-            | head -300
+            | head -500
 
-          echo "======================================"
-          echo "Surefire reports"
-          echo "======================================"
+          echo "=========================================="
+          echo "SUREFIRE REPORTS"
+          echo "=========================================="
 
           find forge-2.0.14-source \
             -path "*/target/surefire-reports/*" \
             -type f \
             -print \
-            | head -300
+            | head -500
 
-          echo "======================================"
-          echo "Xvfb log"
-          echo "======================================"
+          echo "=========================================="
+          echo "XVFB LOG"
+          echo "=========================================="
 
           cat /tmp/xvfb.log 2>/dev/null || true
 
-      # ------------------------------------------------------------
-      # Upload diagnostics
-      # ------------------------------------------------------------
+
+      # ============================================================
+      # UPLOAD RESULTS
+      # ============================================================
+
       - name: Upload simulation results
         if: always()
         uses: actions/upload-artifact@v4
@@ -391,9 +530,11 @@ jobs:
             /tmp/xvfb.log
           if-no-files-found: ignore
 
-      # ------------------------------------------------------------
-      # Stop Xvfb
-      # ------------------------------------------------------------
+
+      # ============================================================
+      # STOP XVFB
+      # ============================================================
+
       - name: Stop Xvfb
         if: always()
         shell: bash
@@ -401,6 +542,7 @@ jobs:
           set +e
 
           if [ -f /tmp/xvfb.pid ]; then
+
             XVFB_PID="$(cat /tmp/xvfb.pid)"
 
             echo "Stopping Xvfb PID $XVFB_PID"
@@ -412,6 +554,7 @@ jobs:
             kill -9 "$XVFB_PID" 2>/dev/null || true
 
             rm -f /tmp/xvfb.pid
+
           fi
 
           rm -f /tmp/.X11-unix/X99
