@@ -9,16 +9,25 @@ permissions:
 
 jobs:
   simulate:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     env:
       FORGE_VERSION: "2.0.14"
       FORGE_SOURCE: "${{ github.workspace }}/forge-2.0.14-source"
-      DISPLAY: ":99"
 
     steps:
+
+      # ---------------------------------------------------------
+      # CHECKOUT
+      # ---------------------------------------------------------
+
       - name: Checkout repository
         uses: actions/checkout@v4
+
+
+      # ---------------------------------------------------------
+      # JAVA
+      # ---------------------------------------------------------
 
       - name: Set up Java 17
         uses: actions/setup-java@v5
@@ -26,24 +35,40 @@ jobs:
           distribution: temurin
           java-version: "17"
           cache: maven
-          server-id: github
-          server-username: GITHUB_ACTOR
-          server-password: GITHUB_TOKEN
+
+
+      # ---------------------------------------------------------
+      # PYTHON
+      # ---------------------------------------------------------
 
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
+
       - name: Install Python dependencies
         shell: bash
         run: |
           set -euxo pipefail
 
+          python -m pip install --upgrade pip
+
           if [ -f requirements.txt ]; then
-            python -m pip install --upgrade pip
             python -m pip install -r requirements.txt
           fi
+
+
+      # ---------------------------------------------------------
+      # XVFB
+      #
+      # IMPORTANT:
+      # Do NOT run Xvfb --version.
+      # Do NOT run Xvfb -version.
+      # Do NOT start Xvfb manually.
+      #
+      # xvfb-run handles the virtual display for us.
+      # ---------------------------------------------------------
 
       - name: Install Xvfb
         shell: bash
@@ -53,43 +78,41 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y xvfb xauth
 
-          echo "Checking Xvfb installation..."
-          command -v Xvfb
-          Xvfb -help >/dev/null 2>&1 || true
+          test -x /usr/bin/Xvfb
+          test -x /usr/bin/xvfb-run
 
-      - name: Start virtual display
+
+      # ---------------------------------------------------------
+      # INSPECT REPOSITORY
+      # ---------------------------------------------------------
+
+      - name: Inspect repository
         shell: bash
         run: |
           set -euxo pipefail
 
-          Xvfb "$DISPLAY" \
-            -screen 0 1920x1080x24 \
-            -ac \
-            +extension GLX \
-            +render \
-            -noreset \
-            > /tmp/xvfb.log 2>&1 &
+          echo "Working directory:"
+          pwd
 
-          XVFB_PID=$!
-          echo "$XVFB_PID" > /tmp/xvfb.pid
+          echo ""
+          echo "Repository contents:"
+          ls -la
 
-          sleep 2
+          echo ""
+          echo "Forge directory:"
+          ls -la engine/forge/
 
-          if ! kill -0 "$XVFB_PID" 2>/dev/null; then
-            echo "Xvfb failed to start."
-            cat /tmp/xvfb.log || true
-            exit 1
-          fi
-
-          echo "Xvfb started successfully on $DISPLAY"
-
-      - name: Check Forge build script
-        shell: bash
-        run: |
-          set -euxo pipefail
+          echo ""
+          echo "Checking Forge build script..."
 
           test -f engine/forge/build_patched_2_0_14.sh
+
           chmod +x engine/forge/build_patched_2_0_14.sh
+
+
+      # ---------------------------------------------------------
+      # DOWNLOAD FORGE
+      # ---------------------------------------------------------
 
       - name: Download Forge 2.0.14 source
         shell: bash
@@ -106,7 +129,23 @@ jobs:
 
           cd "$FORGE_SOURCE"
 
+          echo ""
+          echo "Forge source:"
+          pwd
+
+          echo ""
+          echo "Forge commit:"
           git rev-parse --short HEAD
+
+          echo ""
+          echo "Checking Maven project..."
+
+          test -f pom.xml
+
+
+      # ---------------------------------------------------------
+      # MAVEN SETTINGS
+      # ---------------------------------------------------------
 
       - name: Create Maven local settings
         shell: bash
@@ -115,57 +154,84 @@ jobs:
 
           mkdir -p "$FORGE_SOURCE/.mvn"
 
-          if [ -f "$HOME/.m2/settings.xml" ]; then
-            cp "$HOME/.m2/settings.xml" \
-              "$FORGE_SOURCE/.mvn/local-settings.xml"
-          else
-            cat > "$FORGE_SOURCE/.mvn/local-settings.xml" <<'EOF'
+          cat > "$FORGE_SOURCE/.mvn/local-settings.xml" <<'EOF'
           <?xml version="1.0" encoding="UTF-8"?>
           <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                     xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
+
             <profiles>
               <profile>
                 <id>github</id>
+
                 <repositories>
                   <repository>
                     <id>central</id>
                     <url>https://repo.maven.apache.org/maven2</url>
+
                     <releases>
                       <enabled>true</enabled>
                     </releases>
+
                     <snapshots>
                       <enabled>false</enabled>
                     </snapshots>
                   </repository>
                 </repositories>
+
               </profile>
             </profiles>
+
             <activeProfiles>
               <activeProfile>github</activeProfile>
             </activeProfiles>
+
           </settings>
           EOF
-          fi
 
           test -f "$FORGE_SOURCE/.mvn/local-settings.xml"
+
+
+      # ---------------------------------------------------------
+      # BUILD FORGE
+      #
+      # The ENTIRE Forge build is executed inside xvfb-run.
+      # This gives Java/AWT the DISPLAY it requires.
+      # ---------------------------------------------------------
 
       - name: Build patched Forge 2.0.14
         shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_ACTOR: ${{ github.actor }}
+          DISPLAY: ""
         run: |
           set -euxo pipefail
 
           chmod +x engine/forge/build_patched_2_0_14.sh
 
-          echo "DISPLAY=$DISPLAY"
-          echo "JAVA_HOME=$JAVA_HOME"
+          echo "Java:"
           java -version
+
+          echo ""
+          echo "Maven:"
           mvn -version
 
-          ./engine/forge/build_patched_2_0_14.sh "$FORGE_SOURCE"
+          echo ""
+          echo "Forge source:"
+          echo "$FORGE_SOURCE"
+
+          echo ""
+          echo "Starting Forge build with virtual X display..."
+
+          xvfb-run \
+            --auto-servernum \
+            --server-args="-screen 0 1920x1080x24 -ac -nolisten tcp" \
+            ./engine/forge/build_patched_2_0_14.sh \
+              "$FORGE_SOURCE"
+
+
+      # ---------------------------------------------------------
+      # LOCATE RUNTIME
+      # ---------------------------------------------------------
 
       - name: Locate Forge runtime
         if: success()
@@ -183,7 +249,12 @@ jobs:
               -o -name "forge.sh" \
             \) \
             -print \
-            | head -100
+            | head -200
+
+
+      # ---------------------------------------------------------
+      # REGRESSION TESTS
+      # ---------------------------------------------------------
 
       - name: Run Forge regression tests
         if: success()
@@ -193,17 +264,20 @@ jobs:
 
           cd "$FORGE_SOURCE"
 
-          if [ -f ".mvn/local-settings.xml" ]; then
-            SETTINGS_ARG="-s .mvn/local-settings.xml"
-          else
-            SETTINGS_ARG=""
-          fi
+          echo "Running Forge regression tests inside virtual X display..."
 
-          mvn \
-            $SETTINGS_ARG \
-            -Djava.awt.headless=false \
-            -DskipTests=false \
-            test
+          xvfb-run \
+            --auto-servernum \
+            --server-args="-screen 0 1920x1080x24 -ac -nolisten tcp" \
+            mvn \
+              -s .mvn/local-settings.xml \
+              -Djava.awt.headless=false \
+              test
+
+
+      # ---------------------------------------------------------
+      # IZZET SPELLMENTALS
+      # ---------------------------------------------------------
 
       - name: Run Izzet Spellmentals experiment
         if: success()
@@ -211,16 +285,37 @@ jobs:
         run: |
           set -euxo pipefail
 
-          echo "Running Izzet Spellmentals experiment..."
+          echo "Looking for Izzet Spellmentals experiment..."
 
           if [ -f scripts/izzet_spellmentals.py ]; then
+
             python scripts/izzet_spellmentals.py
+
           elif [ -f engine/izzet_spellmentals.py ]; then
+
             python engine/izzet_spellmentals.py
+
+          elif [ -f scripts/izzet_spellmentals.sh ]; then
+
+            chmod +x scripts/izzet_spellmentals.sh
+            scripts/izzet_spellmentals.sh
+
+          elif [ -f engine/izzet_spellmentals.sh ]; then
+
+            chmod +x engine/izzet_spellmentals.sh
+            engine/izzet_spellmentals.sh
+
           else
+
             echo "No Izzet Spellmentals experiment script found."
             echo "Skipping experiment."
+
           fi
+
+
+      # ---------------------------------------------------------
+      # RESULTS
+      # ---------------------------------------------------------
 
       - name: Display experiment results
         if: always()
@@ -229,28 +324,35 @@ jobs:
           set -euxo pipefail
 
           echo "========================================"
-          echo "Simulation results"
+          echo "SIMULATION RESULTS"
           echo "========================================"
 
           if [ -d results ]; then
-            find results -maxdepth 3 -type f -print
+            echo ""
+            echo "results/:"
+            find results -maxdepth 5 -type f -print
           fi
 
           if [ -d output ]; then
-            find output -maxdepth 3 -type f -print
+            echo ""
+            echo "output/:"
+            find output -maxdepth 5 -type f -print
           fi
 
           if [ -d "$FORGE_SOURCE" ]; then
+            echo ""
+            echo "Surefire reports:"
+
             find "$FORGE_SOURCE" \
               -type f \
-              \( \
-                -name "*.log" \
-                -o -name "*.txt" \
-                -o -name "*.json" \
-              \) \
-              -print \
-              | head -100
+              -path "*/target/surefire-reports/*" \
+              -print
           fi
+
+
+      # ---------------------------------------------------------
+      # ARTIFACTS
+      # ---------------------------------------------------------
 
       - name: Upload simulation results
         if: always()
@@ -260,17 +362,6 @@ jobs:
           path: |
             results/
             output/
-            /tmp/xvfb.log
             ${{ env.FORGE_SOURCE }}/**/target/surefire-reports/
             ${{ env.FORGE_SOURCE }}/**/target/*.log
           if-no-files-found: ignore
-
-      - name: Stop Xvfb
-        if: always()
-        shell: bash
-        run: |
-          set +e
-
-          if [ -f /tmp/xvfb.pid ]; then
-            kill "$(cat /tmp/xvfb.pid)" 2>/dev/null || true
-          fi
