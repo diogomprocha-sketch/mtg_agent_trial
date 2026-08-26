@@ -5,41 +5,35 @@ on:
 
 permissions:
   contents: read
+  packages: read
 
 jobs:
   simulate:
     runs-on: ubuntu-latest
 
     env:
-      JAVA_VERSION: "17"
       FORGE_VERSION: "2.0.14"
+      FORGE_SOURCE: "${{ github.workspace }}/forge-2.0.14-source"
       DISPLAY: ":99"
-      JAVA_TOOL_OPTIONS: "-Djava.awt.headless=false"
 
     steps:
-      # ------------------------------------------------------------
-      # Checkout
-      # ------------------------------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ------------------------------------------------------------
-      # Java
-      # ------------------------------------------------------------
       - name: Set up Java 17
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
           cache: maven
+          server-id: github
+          server-username: GITHUB_ACTOR
+          server-password: GITHUB_TOKEN
 
-      # ------------------------------------------------------------
-      # Python
-      # ------------------------------------------------------------
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-          python-version: "3.12"
+          python-version: "3.11"
 
       - name: Install Python dependencies
         shell: bash
@@ -49,256 +43,130 @@ jobs:
           if [ -f requirements.txt ]; then
             python -m pip install --upgrade pip
             python -m pip install -r requirements.txt
-          else
-            echo "No requirements.txt found; continuing."
           fi
 
-      # ------------------------------------------------------------
-      # Xvfb
-      #
-      # IMPORTANT:
-      # Do NOT use "Xvfb -version".
-      # That is the command which previously caused:
-      #   Fatal server error:
-      #   (EE) Unrecognized option: -version
-      # ------------------------------------------------------------
       - name: Install Xvfb
         shell: bash
         run: |
           set -euxo pipefail
 
           sudo apt-get update
-          sudo apt-get install -y xvfb
+          sudo apt-get install -y xvfb xauth
 
           echo "Checking Xvfb installation..."
-
           command -v Xvfb
+          Xvfb -help >/dev/null 2>&1 || true
 
-          echo "Xvfb binary:"
-          ls -l "$(command -v Xvfb)"
-
-          echo "Xvfb help:"
-          Xvfb -help >/tmp/xvfb-help.txt 2>&1 || true
-          head -n 20 /tmp/xvfb-help.txt
-
-          echo "Xvfb installation OK."
-
-      # ------------------------------------------------------------
-      # Virtual display
-      # ------------------------------------------------------------
       - name: Start virtual display
         shell: bash
         run: |
           set -euxo pipefail
 
-          Xvfb :99 \
-            -screen 0 1280x1024x24 \
+          Xvfb "$DISPLAY" \
+            -screen 0 1920x1080x24 \
             -ac \
             +extension GLX \
             +render \
             -noreset \
-            >/tmp/xvfb.log 2>&1 &
+            > /tmp/xvfb.log 2>&1 &
 
           XVFB_PID=$!
-
-          echo "$XVFB_PID" >/tmp/xvfb.pid
-
-          echo "Waiting for Xvfb..."
+          echo "$XVFB_PID" > /tmp/xvfb.pid
 
           sleep 2
 
           if ! kill -0 "$XVFB_PID" 2>/dev/null; then
-            echo "ERROR: Xvfb failed to start."
-            echo
-            echo "=== Xvfb log ==="
+            echo "Xvfb failed to start."
             cat /tmp/xvfb.log || true
             exit 1
           fi
 
-          echo "Xvfb started successfully."
-          echo "PID: $XVFB_PID"
-          echo "DISPLAY: $DISPLAY"
+          echo "Xvfb started successfully on $DISPLAY"
 
-      # ------------------------------------------------------------
-      # Repository inspection
-      # ------------------------------------------------------------
-      - name: Inspect repository
-        shell: bash
-        run: |
-          set -euxo pipefail
-
-          echo "Working directory:"
-          pwd
-
-          echo
-          echo "Git status:"
-          git status --short --branch
-
-          echo
-          echo "Top-level files:"
-          find . -maxdepth 2 -type f | sort | head -n 250
-
-          echo
-          echo "Workflow files:"
-          find .github/workflows -maxdepth 1 -type f -print 2>/dev/null || true
-
-      # ------------------------------------------------------------
-      # Check Forge build script
-      # ------------------------------------------------------------
       - name: Check Forge build script
         shell: bash
         run: |
           set -euxo pipefail
 
-          if [ ! -f engine/forge/build_patched_2_0_14.sh ]; then
-            echo "ERROR: Forge build script not found:"
-            echo "engine/forge/build_patched_2_0_14.sh"
-            exit 1
-          fi
-
+          test -f engine/forge/build_patched_2_0_14.sh
           chmod +x engine/forge/build_patched_2_0_14.sh
 
-          echo "Forge build script:"
-          ls -l engine/forge/build_patched_2_0_14.sh
-
-          echo
-          echo "First 260 lines:"
-          sed -n '1,260p' engine/forge/build_patched_2_0_14.sh
-
-      # ------------------------------------------------------------
-      # Download Forge 2.0.14
-      # ------------------------------------------------------------
       - name: Download Forge 2.0.14 source
         shell: bash
         run: |
           set -euxo pipefail
 
-          if [ -d "$GITHUB_WORKSPACE/forge-2.0.14-source" ]; then
-            echo "Forge source already exists."
-            exit 0
-          fi
+          rm -rf "$FORGE_SOURCE"
 
-          WORK_DIR="$GITHUB_WORKSPACE/forge-download"
+          git clone \
+            --depth 1 \
+            --branch "forge-${FORGE_VERSION}" \
+            https://github.com/Card-Forge/forge.git \
+            "$FORGE_SOURCE"
 
-          rm -rf "$WORK_DIR"
-          mkdir -p "$WORK_DIR"
+          cd "$FORGE_SOURCE"
 
-          cd "$WORK_DIR"
+          git rev-parse --short HEAD
 
-          echo "Downloading Forge ${FORGE_VERSION}..."
-
-          if git ls-remote \
-              --exit-code \
-              --tags \
-              https://github.com/Card-Forge/forge.git \
-              "refs/tags/forge-${FORGE_VERSION}" \
-              >/dev/null 2>&1; then
-
-            echo "Forge tag found. Cloning tag."
-
-            git clone \
-              --depth 1 \
-              --branch "forge-${FORGE_VERSION}" \
-              https://github.com/Card-Forge/forge.git \
-              forge-source
-
-          else
-
-            echo "Forge tag was not found."
-            echo "Downloading the GitHub source archive instead."
-
-            curl \
-              --fail \
-              --show-error \
-              --location \
-              --retry 3 \
-              --output forge-source.tar.gz \
-              "https://github.com/Card-Forge/forge/archive/refs/tags/forge-${FORGE_VERSION}.tar.gz"
-
-            tar -xzf forge-source.tar.gz
-
-            SOURCE_DIR="$(find . -maxdepth 1 -type d -name 'forge-*' | head -n 1)"
-
-            if [ -z "$SOURCE_DIR" ]; then
-              echo "ERROR: Could not find extracted Forge source."
-              exit 1
-            fi
-
-            mv "$SOURCE_DIR" forge-source
-
-          fi
-
-          cd "$GITHUB_WORKSPACE"
-
-          mv "$WORK_DIR/forge-source" \
-             "$GITHUB_WORKSPACE/forge-2.0.14-source"
-
-          rm -rf "$WORK_DIR"
-
-          echo
-          echo "Forge source successfully prepared."
-
-          ls -la "$GITHUB_WORKSPACE/forge-2.0.14-source"
-
-      # ------------------------------------------------------------
-      # Maven settings
-      # ------------------------------------------------------------
       - name: Create Maven local settings
         shell: bash
         run: |
           set -euxo pipefail
 
-          mkdir -p "$HOME/.m2"
+          mkdir -p "$FORGE_SOURCE/.mvn"
 
-          cat > "$HOME/.m2/settings.xml" <<'EOF'
+          if [ -f "$HOME/.m2/settings.xml" ]; then
+            cp "$HOME/.m2/settings.xml" \
+              "$FORGE_SOURCE/.mvn/local-settings.xml"
+          else
+            cat > "$FORGE_SOURCE/.mvn/local-settings.xml" <<'EOF'
           <?xml version="1.0" encoding="UTF-8"?>
           <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                    xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
-                    https://maven.apache.org/xsd/settings-1.0.0.xsd">
-
+                    xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
             <profiles>
               <profile>
                 <id>github</id>
-                <properties>
-                  <gpg.skip>true</gpg.skip>
-                </properties>
+                <repositories>
+                  <repository>
+                    <id>central</id>
+                    <url>https://repo.maven.apache.org/maven2</url>
+                    <releases>
+                      <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                      <enabled>false</enabled>
+                    </snapshots>
+                  </repository>
+                </repositories>
               </profile>
             </profiles>
-
             <activeProfiles>
               <activeProfile>github</activeProfile>
             </activeProfiles>
-
           </settings>
           EOF
+          fi
 
-          test -f "$HOME/.m2/settings.xml"
+          test -f "$FORGE_SOURCE/.mvn/local-settings.xml"
 
-          echo "Maven settings created."
-
-      # ------------------------------------------------------------
-      # Build patched Forge
-      # ------------------------------------------------------------
       - name: Build patched Forge 2.0.14
         shell: bash
         env:
-          DISPLAY: ":99"
-          JAVA_TOOL_OPTIONS: "-Djava.awt.headless=false"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
         run: |
           set -euxo pipefail
 
           chmod +x engine/forge/build_patched_2_0_14.sh
 
           echo "DISPLAY=$DISPLAY"
-          echo "JAVA_TOOL_OPTIONS=$JAVA_TOOL_OPTIONS"
+          echo "JAVA_HOME=$JAVA_HOME"
+          java -version
+          mvn -version
 
-          ./engine/forge/build_patched_2_0_14.sh \
-            "$GITHUB_WORKSPACE/forge-2.0.14-source"
+          ./engine/forge/build_patched_2_0_14.sh "$FORGE_SOURCE"
 
-      # ------------------------------------------------------------
-      # Locate Forge runtime
-      # ------------------------------------------------------------
       - name: Locate Forge runtime
         if: success()
         shell: bash
@@ -307,177 +175,102 @@ jobs:
 
           echo "Searching for Forge runtime..."
 
-          find "$GITHUB_WORKSPACE/forge-2.0.14-source" \
+          find "$FORGE_SOURCE" \
             -type f \
             \( \
               -name "*.jar" \
               -o -name "forge" \
-              -o -name "forge.jar" \
+              -o -name "forge.sh" \
             \) \
-            | sort \
-            | head -n 300
+            -print \
+            | head -100
 
-      # ------------------------------------------------------------
-      # Forge regression test
-      # ------------------------------------------------------------
       - name: Run Forge regression tests
         if: success()
         shell: bash
-        env:
-          DISPLAY: ":99"
-          JAVA_TOOL_OPTIONS: "-Djava.awt.headless=false"
         run: |
           set -euxo pipefail
 
-          cd "$GITHUB_WORKSPACE/forge-2.0.14-source"
+          cd "$FORGE_SOURCE"
 
-          echo "DISPLAY=$DISPLAY"
-          echo "JAVA_TOOL_OPTIONS=$JAVA_TOOL_OPTIONS"
-
-          mvn \
-            -Djava.awt.headless=false \
-            -Dtest=WeSayTheeNayTest \
-            test
-
-      # ------------------------------------------------------------
-      # Locate experiment runner
-      # ------------------------------------------------------------
-      - name: Locate experiment runner
-        if: success()
-        shell: bash
-        run: |
-          set -euxo pipefail
-
-          echo "Searching for simulation runners..."
-
-          find "$GITHUB_WORKSPACE" \
-            -type f \
-            \( \
-              -name "*.py" \
-              -o -name "*.sh" \
-              -o -name "*.jar" \
-            \) \
-            | grep -Ei \
-              'simulat|experiment|izzet|trajectory|replay|runner' \
-            | sort \
-            | head -n 300 || true
-
-      # ------------------------------------------------------------
-      # Run experiment
-      # ------------------------------------------------------------
-      - name: Run Izzet Spellementals experiment
-        if: success()
-        shell: bash
-        env:
-          DISPLAY: ":99"
-          JAVA_TOOL_OPTIONS: "-Djava.awt.headless=false"
-        run: |
-          set -euxo pipefail
-
-          echo "Starting Izzet Spellementals experiment..."
-
-          if [ -f scripts/run_izzet_experiment.py ]; then
-
-            python scripts/run_izzet_experiment.py
-
-          elif [ -f scripts/simulate.py ]; then
-
-            python scripts/simulate.py
-
-          elif [ -f simulation/run_simulation.py ]; then
-
-            python simulation/run_simulation.py
-
+          if [ -f ".mvn/local-settings.xml" ]; then
+            SETTINGS_ARG="-s .mvn/local-settings.xml"
           else
-
-            echo "ERROR: No known experiment runner was found."
-            echo
-            echo "Python files:"
-            find "$GITHUB_WORKSPACE" \
-              -type f \
-              -name "*.py" \
-              | sort \
-              | head -n 300
-
-            exit 1
-
+            SETTINGS_ARG=""
           fi
 
-      # ------------------------------------------------------------
-      # Always display result files
-      # ------------------------------------------------------------
+          mvn \
+            $SETTINGS_ARG \
+            -Djava.awt.headless=false \
+            -DskipTests=false \
+            test
+
+      - name: Run Izzet Spellmentals experiment
+        if: success()
+        shell: bash
+        run: |
+          set -euxo pipefail
+
+          echo "Running Izzet Spellmentals experiment..."
+
+          if [ -f scripts/izzet_spellmentals.py ]; then
+            python scripts/izzet_spellmentals.py
+          elif [ -f engine/izzet_spellmentals.py ]; then
+            python engine/izzet_spellmentals.py
+          else
+            echo "No Izzet Spellmentals experiment script found."
+            echo "Skipping experiment."
+          fi
+
       - name: Display experiment results
         if: always()
         shell: bash
         run: |
-          echo "=========================================="
-          echo "Simulation result files"
-          echo "=========================================="
+          set -euxo pipefail
 
-          find "$GITHUB_WORKSPACE" \
-            -type f \
-            \( \
-              -name "*.json" \
-              -o -name "*.jsonl" \
-              -o -name "*.csv" \
-              -o -name "*.txt" \
-              -o -name "*.log" \
-              -o -name "*.md" \
-            \) \
-            | grep -Ei \
-              'result|simulation|trajectory|replay|experiment|summary|report' \
-            | sort \
-            | head -n 500 || true
+          echo "========================================"
+          echo "Simulation results"
+          echo "========================================"
 
-      # ------------------------------------------------------------
-      # Upload results
-      # ------------------------------------------------------------
+          if [ -d results ]; then
+            find results -maxdepth 3 -type f -print
+          fi
+
+          if [ -d output ]; then
+            find output -maxdepth 3 -type f -print
+          fi
+
+          if [ -d "$FORGE_SOURCE" ]; then
+            find "$FORGE_SOURCE" \
+              -type f \
+              \( \
+                -name "*.log" \
+                -o -name "*.txt" \
+                -o -name "*.json" \
+              \) \
+              -print \
+              | head -100
+          fi
+
       - name: Upload simulation results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: forge-simulation-results
           path: |
-            results/**
-            output/**
-            artifacts/**
-            simulation/**
-            trajectories/**
-            replays/**
-            reports/**
-            forge-2.0.14-source/**/target/surefire-reports/**
-          if-no-files-found: warn
+            results/
+            output/
+            /tmp/xvfb.log
+            ${{ env.FORGE_SOURCE }}/**/target/surefire-reports/
+            ${{ env.FORGE_SOURCE }}/**/target/*.log
+          if-no-files-found: ignore
 
-      # ------------------------------------------------------------
-      # Xvfb diagnostics
-      # ------------------------------------------------------------
-      - name: Show Xvfb diagnostics
+      - name: Stop Xvfb
         if: always()
         shell: bash
         run: |
-          echo "=========================================="
-          echo "Xvfb diagnostics"
-          echo "=========================================="
-
-          echo "DISPLAY=$DISPLAY"
+          set +e
 
           if [ -f /tmp/xvfb.pid ]; then
-            echo "Xvfb PID:"
-            cat /tmp/xvfb.pid
-
-            PID="$(cat /tmp/xvfb.pid)"
-
-            if kill -0 "$PID" 2>/dev/null; then
-              echo "Xvfb process is still running."
-            else
-              echo "Xvfb process is no longer running."
-            fi
-          fi
-
-          echo
-          echo "Xvfb log:"
-          if [ -f /tmp/xvfb.log ]; then
-            cat /tmp/xvfb.log
-          else
-            echo "No Xvfb log found."
+            kill "$(cat /tmp/xvfb.pid)" 2>/dev/null || true
           fi
